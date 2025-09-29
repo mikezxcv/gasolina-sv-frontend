@@ -1,173 +1,208 @@
-# TailAdmin Next.js - Free Next.js Tailwind Admin Dashboard Template
+# Dashboard Admin Panel
 
-TailAdmin is a free and open-source admin dashboard template built on **Next.js and Tailwind CSS** providing developers with everything they need to create a feature-rich and data-driven: back-end, dashboard, or admin panel solution for any sort of web project.
+Un moderno panel de administración construido con las últimas tecnologías web, diseñado para proporcionar una experiencia de usuario fluida y profesional.
 
-![TailAdmin - Next.js Dashboard Preview](./banner.png)
+## 🚀 Características
 
-With TailAdmin Next.js, you get access to all the necessary dashboard UI components, elements, and pages required to build a high-quality and complete dashboard or admin panel. Whether you're building a dashboard or admin panel for a complex web application or a simple website. 
+- **Dashboard interactivo** con visualización de datos en tiempo real
+- **Componentes UI modernos** y reutilizables
+- **Sidebar responsive** con navegación intuitiva
+- **Modo oscuro** integrado para mejor experiencia de usuario
+- **Gráficos y tablas** para análisis de datos con ApexCharts
+- **Calendario interactivo** con FullCalendar
+- **Mapas vectoriales** con React JVectorMap
+- **Drag & Drop** funcionalidad integrada
+- **Gestión de archivos** con React Dropzone
+- **Carruseles** con Swiper
+- **Formularios avanzados** con validación
 
-TailAdmin utilizes the powerful features of **Next.js 15** and common features of Next.js such as server-side rendering (SSR), static site generation (SSG), and seamless API route integration. Combined with the advancements of **React 19** and the robustness of **TypeScript**, TailAdmin is the perfect solution to help get your project up and running quickly.
+## 🛠️ Stack Tecnológico
 
-## Overview
+Este proyecto está construido con tecnologías de vanguardia:
 
-TailAdmin provides essential UI components and layouts for building feature-rich, data-driven admin dashboards and control panels. It's built on:
+- **Next.js 15.2.3** - Framework React con SSR y SSG
+- **React 19** - Biblioteca de interfaz de usuario
+- **TypeScript 5** - Superset tipado de JavaScript
+- **Tailwind CSS V4** - Framework de CSS utility-first
+- **ApexCharts** - Librería de gráficos interactivos
+- **FullCalendar** - Componente de calendario completo
+- **React JVectorMap** - Mapas vectoriales interactivos
+- **React DnD** - Funcionalidad Drag and Drop
 
-- Next.js 15.x
-- React 19
-- TypeScript
-- Tailwind CSS V4
+## 📋 Requisitos Previos
 
-### Quick Links
-- [✨ Visit Website](https://tailadmin.com)
-- [📄 Documentation](https://tailadmin.com/docs)
-- [⬇️ Download](https://tailadmin.com/download)
-- [🖌️ Figma Design File (Community Edition)](https://www.figma.com/community/file/1463141366275764364)
-- [⚡ Get PRO Version](https://tailadmin.com/pricing)
+Antes de comenzar, asegúrate de tener instalado:
 
-### Demos
-- [Free Version](https://nextjs-free-demo.tailadmin.com)
-- [Pro Version](https://nextjs-demo.tailadmin.com)
+- Node.js 18.x o superior (se recomienda Node.js 20.x o posterior)
+- npm o yarn como gestor de paquetes
+- Git para control de versiones
 
-### Other Versions
-- [HTML Version](https://github.com/TailAdmin/tailadmin-free-tailwind-dashboard-template)
-- [React Version](https://github.com/TailAdmin/free-react-tailwind-admin-dashboard)
-- [Vue.js Version](https://github.com/TailAdmin/vue-tailwind-admin-dashboard)
+## 🔧 Instalación
 
-## Installation
-
-### Prerequisites
-To get started with TailAdmin, ensure you have the following prerequisites installed and set up:
-
-- Node.js 18.x or later (recommended to use Node.js 20.x or later)
-
-### Cloning the Repository
-Clone the repository using the following command:
+1. **Clonar el repositorio**
 
 ```bash
-git clone https://github.com/TailAdmin/free-nextjs-admin-dashboard.git
+git clone https://github.com/mikezxcv/tailadmin-next-typescript-free-2.0-main.git
+cd tailadmin-next-typescript-free-2.0-main
 ```
 
-> Windows Users: place the repository near the root of your drive if you face issues while cloning.
+> **Nota para usuarios de Windows:** Coloca el repositorio cerca de la raíz de tu unidad si encuentras problemas al clonar.
 
-1. Install dependencies:
-    ```bash
-    npm install
-    # or
-    yarn install
-    ```
-    > Use `--legacy-peer-deps` flag if you face peer-dependency error during installation.
+2. **Instalar dependencias**
 
-2. Start the development server:
-    ```bash
-    npm run dev
-    # or
-    yarn dev
-    ```
+```bash
+npm install
+# o
+yarn install
+```
 
-## Components
+> Si encuentras errores de dependencias peer, usa el flag `--legacy-peer-deps`:
+> ```bash
+> npm install --legacy-peer-deps
+> ```
 
-TailAdmin is a pre-designed starting point for building a web-based dashboard using Next.js and Tailwind CSS. The template includes:
+3. **Iniciar el servidor de desarrollo**
 
-- Sophisticated and accessible sidebar
-- Data visualization components
-- Profile management and custom 404 page
-- Tables and Charts(Line and Bar)
-- Authentication forms and input elements
-- Alerts, Dropdowns, Modals, Buttons and more
-- Can't forget Dark Mode 🕶️
+```bash
+npm run dev
+# o
+yarn dev
+```
 
-All components are built with React and styled using Tailwind CSS for easy customization.
+4. **Abrir en el navegador**
 
-## Feature Comparison
+Navega a [http://localhost:3000](http://localhost:3000) para ver la aplicación en funcionamiento.
 
-### Free Version
-- 1 Unique Dashboard
-- 30+ dashboard components
-- 50+ UI elements
-- Basic Figma design files
-- Community support
+## 📁 Estructura del Proyecto
 
-### Pro Version
-- 5 Unique Dashboards: Analytics, Ecommerce, Marketing, CRM, Stocks (more coming soon)
-- 400+ dashboard components and UI elements
-- Complete Figma design file
-- Email support
+```
+.
+├── public/                 # Archivos estáticos e imágenes
+│   └── images/            # Recursos de imágenes
+├── src/
+│   ├── app/               # Next.js App Router (páginas y rutas)
+│   ├── components/        # Componentes React reutilizables
+│   ├── context/           # Context API de React
+│   ├── hooks/             # Custom React Hooks
+│   ├── icons/             # Componentes de iconos SVG
+│   └── layout/            # Componentes de layout (Header, Sidebar, etc.)
+├── .next/                 # Build de Next.js (generado automáticamente)
+├── package.json           # Dependencias y scripts del proyecto
+└── tsconfig.json          # Configuración de TypeScript
+```
 
-To learn more about pro version features and pricing, visit our [pricing page](https://tailadmin.com/pricing).
+## 🎨 Componentes y Librerías Principales
 
-## Changelog
+### Visualización de Datos
+- **ApexCharts** - Gráficos de líneas, barras, áreas, dona y más
+- **React JVectorMap** - Mapas interactivos del mundo
 
-### Version 2.0.2 - [March 25, 2025]
+### Componentes de UI
+- **FullCalendar** - Calendario completo con vistas diaria, semanal y mensual
+- **React Dropzone** - Upload de archivos con drag & drop
+- **React DnD** - Funcionalidad de arrastrar y soltar
+- **Swiper** - Carruseles y sliders modernos
+- **Flatpickr** - Selector de fechas elegante
 
-- Upgraded to Next v15.2.3 for [CVE-2025-29927](https://nextjs.org/blog/cve-2025-29927) concerns
-- Included overrides vectormap for packages to prevent peer dependency errors during installation.
-- Migrated from react-flatpickr to flatpickr package for React 19 support
+### Utilidades
+- **Tailwind Merge** - Gestión optimizada de clases de Tailwind
+- **Tailwind Forms** - Estilos mejorados para formularios
 
-### Version 2.0.1 - [February 27, 2025]
+## 🚀 Scripts Disponibles
 
-#### Update Overview
+```bash
+# Desarrollo - Inicia el servidor de desarrollo
+npm run dev
 
-- Upgraded to Tailwind CSS v4 for better performance and efficiency.
-- Updated class usage to match the latest syntax and features.
-- Replaced deprecated class and optimized styles.
+# Construcción - Genera la build de producción
+npm run build
 
-#### Next Steps
+# Producción - Inicia el servidor de producción
+npm run start
 
-- Run npm install or yarn install to update dependencies.
-- Check for any style changes or compatibility issues.
-- Refer to the Tailwind CSS v4 [Migration Guide](https://tailwindcss.com/docs/upgrade-guide) on this release. if needed.
-- This update keeps the project up to date with the latest Tailwind improvements. 🚀
+# Linting - Revisa y corrige errores de código
+npm run lint
+```
 
-### v2.0.0 (February 2025)
-A major update focused on Next.js 15 implementation and comprehensive redesign.
+## 🔄 Versión Actual
 
-#### Major Improvements
-- Complete redesign using Next.js 15 App Router and React Server Components
-- Enhanced user interface with Next.js-optimized components
-- Improved responsiveness and accessibility
-- New features including collapsible sidebar, chat screens, and calendar
-- Redesigned authentication using Next.js App Router and server actions
-- Updated data visualization using ApexCharts for React
+**v2.0.2** - Actualización estable con Next.js 15.2.3
 
-#### Breaking Changes
+### Características de esta versión:
+- Migración completa a Next.js 15 App Router
+- Soporte para React 19
+- Actualización a Tailwind CSS v4
+- Componentes optimizados con Server Components
+- Mejoras de rendimiento y seguridad
 
-- Migrated from Next.js 14 to Next.js 15
-- Chart components now use ApexCharts for React
-- Authentication flow updated to use Server Actions and middleware
+## 🎯 Uso y Personalización
 
-[Read more](https://tailadmin.com/docs/update-logs/nextjs) on this release.
+### Estructura de Componentes
 
-#### Breaking Changes
-- Migrated from Next.js 14 to Next.js 15
-- Chart components now use ApexCharts for React
-- Authentication flow updated to use Server Actions and middleware
+Los componentes están organizados de la siguiente manera:
 
-### v1.3.4 (July 01, 2024)
-- Fixed JSvectormap rendering issues
+- **`src/components/`** - Componentes reutilizables (botones, cards, tablas, etc.)
+- **`src/layout/`** - Componentes de estructura (Header, Sidebar, Footer)
+- **`src/app/`** - Páginas y rutas usando Next.js App Router
+- **`src/context/`** - Context providers para estado global
+- **`src/hooks/`** - Custom hooks para lógica reutilizable
+- **`src/icons/`** - Iconos SVG personalizados
 
-### v1.3.3 (June 20, 2024)
-- Fixed build error related to Loader component
+### Personalizar Estilos
 
-### v1.3.2 (June 19, 2024)
-- Added ClickOutside component for dropdown menus
-- Refactored sidebar components
-- Updated Jsvectormap package
+Todos los componentes usan Tailwind CSS. Para personalizar:
 
-### v1.3.1 (Feb 12, 2024)
-- Fixed layout naming consistency
-- Updated styles
+1. Modifica las clases de Tailwind directamente en los componentes
+2. Ajusta la configuración en `tailwind.config.js` (si existe)
+3. Añade estilos globales en `src/app/globals.css`
 
-### v1.3.0 (Feb 05, 2024)
-- Upgraded to Next.js 14
-- Added Flatpickr integration
-- Improved form elements
-- Enhanced multiselect functionality
-- Added default layout component
+### Agregar Nuevas Páginas
 
-## License
+Utiliza el sistema de routing de Next.js App Router:
 
-TailAdmin Next.js Free Version is released under the MIT License.
+```typescript
+// src/app/nueva-pagina/page.tsx
+export default function NuevaPagina() {
+  return <div>Mi nueva página</div>
+}
+```
 
-## Support
+## 🌐 Navegadores Soportados
 
-If you find this project helpful, please consider giving it a star on GitHub. Your support helps us continue developing and maintaining this template.
+- Chrome (última versión)
+- Firefox (última versión)
+- Safari (última versión)
+- Edge (última versión)
+
+## 📝 Licencia
+
+Este proyecto está bajo la Licencia MIT. Consulta el archivo LICENSE para más detalles.
+
+## 🤝 Contribuciones
+
+Las contribuciones son bienvenidas. Si encuentras algún error o tienes sugerencias de mejora:
+
+1. Fork el proyecto
+2. Crea una rama para tu feature (`git checkout -b feature/AmazingFeature`)
+3. Commit tus cambios (`git commit -m 'Add some AmazingFeature'`)
+4. Push a la rama (`git push origin feature/AmazingFeature`)
+5. Abre un Pull Request
+
+## 🐛 Reporte de Bugs
+
+Si encuentras un bug, por favor abre un issue con:
+- Descripción detallada del problema
+- Pasos para reproducirlo
+- Comportamiento esperado vs actual
+- Screenshots si aplica
+
+## 📧 Soporte
+
+Para preguntas o soporte:
+- Abre un issue en el repositorio
+- Revisa la documentación de Next.js
+- Consulta la documentación de Tailwind CSS
+
+---
+
+Desarrollado con ❤️ usando Next.js, React 19 y Tailwind CSS
