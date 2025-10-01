@@ -1,6 +1,7 @@
-import StockCard from "./StockMetricCard";
+import { Estacion } from "../(interfaces)/admin.interfaces";
+import GasStationCard from "./GasStationCard";
 
-type StockCardProps = {
+type GasStationCardProps = {
   imgUrl: string;
   symbol: string;
   companyName: string;
@@ -9,7 +10,7 @@ type StockCardProps = {
   changeDirection: "up" | "down"; // Direction of the price change
 };
 
-const stockData: StockCardProps[] = [
+const gasStationData: GasStationCardProps[] = [
   {
     imgUrl: "/images/brand/brand-07.svg",
     symbol: "APPL",
@@ -45,11 +46,25 @@ const stockData: StockCardProps[] = [
   },
 ];
 
-export default function StockMetricsList() {
+interface IProps {
+  gasStations: Estacion[];
+}
+
+console.log("gasStations", gasStationData);
+
+export default function GasStationList({ gasStations }: IProps) {
   return (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-6 xl:grid-cols-4">
-      {stockData.map((stock, i) => (
-        <StockCard key={i + 1} {...stock} />
+      {gasStations.map((station, i) => (
+        <GasStationCard key={i + 1}
+          change={station.departamento}
+          changeDirection={"up"}
+          companyName={station.marca}
+          imgUrl={`/images/brand/${station.marca}.svg`}
+          price={(station.ultimoPrecio.regularAuto || station.ultimoPrecio.regularSc) ? `$${station.ultimoPrecio.regularAuto || station.ultimoPrecio.regularSc}` : "N/A"}
+          symbol={station.id}
+          name={station.estacion}
+        />
       ))}
     </div>
   );
