@@ -53,3 +53,19 @@ export interface ApiResponse {
   numberOfElements?: number;
   empty?: boolean;
 }
+
+export interface QueryParamsGasStations {
+  departamento?: string;
+  marca?: string;
+  q?: string;
+  page?: number;
+  size?: number;
+}
+
+export interface QueryParamsGasStationsNearBy {
+  lat: number;
+  lng: number;
+  radioKm?: number; // in kilometers
+  page?: number;
+  size?: number;
+}
