@@ -1,50 +1,224 @@
-import ComponentCard from "../../common/ComponentCard";
+"use client";
+
 import Button from "../button/Button";
 import { Modal } from "./Modal";
+import Image from "next/image";
+import { Estacion } from "@/app/(admin)/(interfaces)/admin.interfaces";
+import { FaStore, FaCalendarAlt, FaMap, FaPaperPlane, FaLink } from "react-icons/fa";
+import Badge from "../badge/Badge";
+import { toast } from "react-toastify";
 
-// type props isOpen, openModal, closeModal
 interface VerticallyCenteredModalProps {
   isOpen: boolean;
   openModal: () => void;
   closeModal: () => void;
+  station: Estacion | null;
 }
 
-export default function VerticallyCenteredModal( { isOpen, openModal, closeModal }: VerticallyCenteredModalProps ) {
-  const handleSave = () => {
-    // Handle save logic here
-    console.log("Saving changes...");
-    closeModal();
-  };
-  return (
-    <ComponentCard title="Vertically Centered Modal">
-      <Button size="sm" onClick={openModal}>
-        Open Modal
-      </Button>
-      <Modal
-        isOpen={isOpen}
-        onClose={closeModal}
-        showCloseButton={false}
-        className="max-w-[507px] p-6 lg:p-10"
-      >
-        <div className="text-center">
-          <h4 className="mb-2 text-2xl font-semibold text-gray-800 dark:text-white/90 sm:text-title-sm">
-            All Done! Success Confirmed
-          </h4>
-          <p className="text-sm leading-6 text-gray-500 dark:text-gray-400">
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-            Pellentesque euismod est quis mauris lacinia pharetra.
-          </p>
+export default function VerticallyCenteredModal({
+  isOpen,
+  // openModal,
+  closeModal,
+  station,
+}: VerticallyCenteredModalProps) {
+  if (!station) return null;
 
-          <div className="flex items-center justify-center w-full gap-3 mt-8">
-            <Button size="sm" variant="outline" onClick={closeModal}>
-              Close
-            </Button>
-            <Button size="sm" onClick={handleSave}>
-              Save Changes
-            </Button>
+  const {
+    id,
+    estacion,
+    marca,
+    direccion,
+    departamento,
+    municipio,
+    tienda,
+    ultimoPrecio,
+    latitude,
+    longitude,
+  } = station;
+
+  const staticMapUrl =
+    latitude && longitude
+      ? `https://maps.geoapify.com/v1/staticmap?style=osm-bright-smooth&width=600&height=400&center=lonlat:${longitude},${latitude}&zoom=15&marker=lonlat:${longitude},${latitude};type:material;color:%23dc2626;size:large;icon:gas-station&apiKey=b0e48491f5a445b6b29951c52c19e4ae`
+      : null;
+
+  const googleMapsUrl =
+    latitude && longitude
+      ? `https://www.google.com/maps?q=${latitude},${longitude}`
+      : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(estacion)}`;
+
+  // Precios diferenciando servicio normal / completo
+  const precios = [
+    {
+      label: "Regular",
+      auto: ultimoPrecio.regularAuto,
+      sc: ultimoPrecio.regularSc,
+    },
+    {
+      label: "Especial",
+      auto: ultimoPrecio.especialAuto,
+      sc: ultimoPrecio.especialSc,
+    },
+    {
+      label: "Diésel",
+      auto:
+        ultimoPrecio.dieselAuto ??
+        ultimoPrecio.dieselLSAuto ??
+        ultimoPrecio.ionDieselAuto,
+      sc:
+        ultimoPrecio.dieselSc ??
+        ultimoPrecio.dieselLSSc ??
+        ultimoPrecio.ionDieselSc,
+    },
+  ];
+
+  const fecha = new Date(ultimoPrecio.fechaReporte).toLocaleString("es-SV");
+
+  const handleCopyLink = () => {
+    const stationUrl = `${window.location.origin}/detail-station/${id}`;
+    navigator.clipboard.writeText(stationUrl).then(() => {
+      closeModal();
+      toast.success("¡Enlace copiado al portapapeles!");
+    }).catch((err) => {
+      toast.error("Error al copiar el enlace:", err);
+    });
+  };
+
+  return (
+    <Modal
+      isOpen={isOpen}
+      onClose={closeModal}
+      showCloseButton={false}
+      className="max-w-lg w-full p-6 lg:p-8"
+    >
+      <div
+        className="grid grid-cols-1 gap-6"
+        style={{
+          maxHeight: "80vh",
+          overflowY: "auto",
+        }}
+      >
+        <div className="flex items-center gap-4">
+          <div className="w-16 h-16 bg-gray-100 dark:bg-gray-800 flex items-center justify-center rounded-lg">
+            <Image
+              src={`/images/brand/${marca}.svg`}
+              alt={marca}
+              width={48}
+              height={48}
+              className="object-contain"
+            />
+          </div>
+          <div className="flex-1">
+            <h4 className="text-xl font-semibold text-gray-800 dark:text-white">
+              {estacion}
+            </h4>
+
+            <p className="text-sm text-gray-500 dark:text-gray-400 flex items-center gap-1">
+              {direccion || "Dirección no disponible"}
+            </p>
+            <p className="text-sm text-gray-500 dark:text-gray-500 mt-4">
+              {municipio}, {departamento}
+            </p>
+            <div className="mt-1">
+              {tienda ? (
+                <span className="flex items-center gap-1 text-green-600 dark:text-green-400 text-sm">
+                  <FaStore /> Con tienda
+                </span>
+              ) : (
+                <span className="text-gray-400 text-sm">Sin tienda</span>
+              )}
+            </div>
           </div>
         </div>
-      </Modal>
-    </ComponentCard>
+
+        {/* Precios */}
+        <div className="space-y-4">
+          <h5 className="text-lg font-semibold text-gray-800 dark:text-white">
+            Precios de Combustible
+          </h5>
+          <div className="space-y-2">
+            {precios.map((p) => (
+              <div
+                key={p.label}
+                className="border border-gray-200 dark:border-gray-700 rounded-lg p-3 bg-gray-50 dark:bg-gray-800/40"
+              >
+                <p className="text-base font-medium text-gray-700 dark:text-gray-200 mb-1">
+                  {p.label}
+                </p>
+                {p.auto || p.sc ? (
+                  <div className="flex flex-wrap gap-4">
+                    {p.auto !== null && p.auto !== undefined && (
+                      <div className="flex items-center gap-2">
+                        <Badge variant="solid" color="success">Servicio Normal</Badge>
+                        <span className="text-lg font-bold text-gray-800 dark:text-white">
+                          ${p.auto.toFixed(2)}
+                        </span>
+                      </div>
+                    )}
+                    {p.sc !== null && p.sc !== undefined && (
+                      <div className="flex items-center gap-2">
+                        <Badge variant="solid" color="info">Servicio Completo</Badge>
+                        <span className="text-lg font-bold text-gray-800 dark:text-white">
+                          ${p.sc.toFixed(2)}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <p className="text-sm italic text-gray-400">NO HAY DATOS</p>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Mapa estático */}
+        <div className="space-y-2">
+          <h5 className="text-base font-semibold text-gray-800 dark:text-white flex items-center gap-2">
+            <FaMap /> Mapa (ubicación aproximada)
+          </h5>
+          <div className="w-full h-[200px] bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden flex items-center justify-center">
+            {staticMapUrl ? (
+              <Image
+                src={staticMapUrl}
+                alt="Mapa Estación"
+                width={500}
+                height={200}
+                className="object-cover"
+              />
+            ) : (
+              <p className="text-gray-500 text-sm">Ubicación no disponible</p>
+            )}
+          </div>
+          <Button
+            size="sm"
+            className="w-full mt-2 flex items-center justify-center gap-2 bg-blue-500 hover:bg-blue-600 text-white"
+            onClick={() => window.open(googleMapsUrl, "_blank")}
+          >
+            <FaPaperPlane /> Cómo llegar (Google Maps)
+          </Button>
+        </div>
+
+        {/* Fecha actualización */}
+        <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
+          <FaCalendarAlt />
+          Última actualización: {fecha}
+        </div>
+
+        {/* Botones al final */}
+        <div className="flex justify-end gap-2">
+          <Button
+            size="sm"
+            variant="primary"
+            onClick={handleCopyLink}
+            className="flex items-center gap-2"
+          >
+            <FaLink /> Copiar Enlace
+          </Button>
+          <Button size="sm" variant="outline" onClick={closeModal}>
+            Cerrar
+          </Button>
+        </div>
+      </div>
+    </Modal>
   );
 }

@@ -9,6 +9,9 @@ const nextConfig: NextConfig = {
     });
     return config;
   },
+  images: {
+    domains: ['maps.geoapify.com'],
+  },
 };
 
 export default nextConfig;
