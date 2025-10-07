@@ -12,10 +12,13 @@ const appService = axios.create({
 // Request interceptor
 appService.interceptors.request.use(
   (config) => {
+    // set access_token temporaly from env var for testing purposes
+    const accessTokenFromEnv = process.env.NEXT_PUBLIC_ACCESS_TOKEN;
+    localStorage.setItem("access_token", accessTokenFromEnv || "");
     const accessToken =
       typeof window !== "undefined"
         ? localStorage.getItem("access_token")
-        : null;
+        : accessTokenFromEnv;
 
     if (!config.headers) {
       throw new Error(
@@ -73,7 +76,7 @@ appService.interceptors.response.use(
             localStorage.removeItem("refresh_token");
             localStorage.removeItem("expiresIn");
             if (typeof window !== "undefined") {
-              window.location.href = "/signin";
+              // window.location.href = "/signin";
             }
           }
         } else {
@@ -81,7 +84,7 @@ appService.interceptors.response.use(
           localStorage.removeItem("refresh_token");
           localStorage.removeItem("expiresIn");
           if (typeof window !== "undefined") {
-            window.location.href = "/signin";
+            // window.location.href = "/signin";
           }
         }
       } else if (error.response.status === 404) {

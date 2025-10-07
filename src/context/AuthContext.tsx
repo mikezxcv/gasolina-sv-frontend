@@ -88,7 +88,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     setIsAuthenticated(false);
     setUserLogged(null);
 
-    router.push("/signin");
+    // router.push("/signin");
   };
 
   const refreshToken = async () => {
