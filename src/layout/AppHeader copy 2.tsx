@@ -1,7 +1,8 @@
 "use client";
 import { ThemeToggleButton } from "@/components/common/ThemeToggleButton";
-import { FaGasPump, FaMapMarkerAlt, FaSearch, FaSlidersH } from "react-icons/fa";
+import { FaMapMarkerAlt, FaSearch, FaSlidersH, FaGasPump } from "react-icons/fa";
 import React, { useState, useRef, useEffect } from "react";
+import DropdownFilters from "./DropdownFilters";
 
 const AppHeader: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -31,7 +32,7 @@ const AppHeader: React.FC = () => {
           <ThemeToggleButton />
           <h1 className="text-lg font-semibold text-gray-900 dark:text-gray-100 tracking-tight">
             <FaGasPump className="inline-block mr-2 text-blue-600" />
-             Gasolina SV
+            Gasolina SV
           </h1>
           <button
             onClick={handleNearMeClick}
@@ -55,7 +56,7 @@ const AppHeader: React.FC = () => {
               className="w-full pl-10 pr-4 py-2.5 text-sm rounded-xl border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
             />
           </div>
-
+          {/* <DropdownFilters /> */}
           <button className="inline-flex items-center gap-2 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 px-4 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 shadow-sm transition-all">
             <FaSlidersH className="w-4 h-4" />
             Filtros
