@@ -56,6 +56,7 @@ export interface ApiResponse {
 
 export interface QueryParamsGasStations {
   departamento?: string;
+  municipio?: string;
   marca?: string;
   q?: string;
   page?: number;

@@ -1,28 +1,45 @@
 "use client";
 
 import { ThemeToggleButton } from "@/components/common/ThemeToggleButton";
-import { FaMapMarkerAlt, FaSearch, FaSlidersH, FaGasPump } from "react-icons/fa";
-import React, { useState, useRef, useEffect } from "react";
+import { FaMapMarkerAlt, FaSearch, FaGasPump } from "react-icons/fa";
+import React, { useRef, useEffect, useState } from "react";
 import DropdownFilters from "./DropdownFilters";
+import { useFilters } from "@/context/FiltersContext";
 
 const AppHeader: React.FC = () => {
-  const [searchTerm, setSearchTerm] = useState("");
+  const { searchTerm, setSearchTerm } = useFilters();
+  const [localSearchTerm, setLocalSearchTerm] = useState(searchTerm);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const handleNearMeClick = () => {
     window.open("/mapa", "_blank");
   };
 
+  // Sincronizar el valor local con el del contexto cuando cambia externamente
   useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
+    setLocalSearchTerm(searchTerm);
+  }, [searchTerm]);
+
+  const handleSearch = () => {
+    setSearchTerm(localSearchTerm);
+  };
+
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === "Enter") {
+      handleSearch();
+    }
+  };
+
+  useEffect(() => {
+    const handleGlobalKeyDown = (event: KeyboardEvent) => {
       if ((event.metaKey || event.ctrlKey) && event.key === "k") {
         event.preventDefault();
         inputRef.current?.focus();
       }
     };
 
-    document.addEventListener("keydown", handleKeyDown);
-    return () => document.removeEventListener("keydown", handleKeyDown);
+    document.addEventListener("keydown", handleGlobalKeyDown);
+    return () => document.removeEventListener("keydown", handleGlobalKeyDown);
   }, []);
 
   return (
@@ -51,10 +68,11 @@ const AppHeader: React.FC = () => {
             <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
             <input
               ref={inputRef}
-              type="text"
+              type="search"
               placeholder="Buscar estación..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              value={localSearchTerm}
+              onChange={(e) => setLocalSearchTerm(e.target.value)}
+              onKeyDown={handleKeyDown}
               className="w-full pl-10 pr-4 py-2.5 text-sm rounded-xl border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
             />
           </div>

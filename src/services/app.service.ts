@@ -1,7 +1,79 @@
-import axios, { AxiosError } from "axios";
+import axios, { AxiosError, InternalAxiosRequestConfig } from "axios";
 import { toast } from "react-toastify";
+import { SignJWT } from "jose"; // Librería que SÍ funciona en el navegador
 
-// ✅ In Next.js, public env vars must start with NEXT_PUBLIC_
+interface JwtResponse {
+  access_token: string;
+  refresh_token: string;
+  expires_in: number;
+}
+
+// Helper para verificar si estamos en el navegador
+const isBrowser = () => typeof window !== "undefined";
+
+// Funciones seguras para localStorage
+const getStorageItem = (key: string): string | null => {
+  if (!isBrowser()) return null;
+  try {
+    return localStorage.getItem(key);
+  } catch (error) {
+    return null;
+  }
+};
+
+const setStorageItem = (key: string, value: string): void => {
+  if (!isBrowser()) return;
+  try {
+    localStorage.setItem(key, value);
+  } catch (error) {
+  }
+};
+
+const removeStorageItem = (key: string): void => {
+  if (!isBrowser()) return;
+  try {
+    localStorage.removeItem(key);
+  } catch (error) {
+  }
+};
+
+// Función para generar JWT en el CLIENTE usando jose
+async function generateJwtToken(payload = {}): Promise<JwtResponse> {
+  try {
+
+    const secret = process.env.NEXT_PUBLIC_SECRET_KEY;
+    if (!secret) {
+      toast.error("Secret key no definida");
+      throw new Error("Secret key not defined");
+    }
+
+    const expiresIn = Number(process.env.NEXT_PUBLIC_EXPIRENS_IN_SECONDS) || 3600;
+
+    // Convertir el secret a Uint8Array (requerido por jose)
+    const secretKey = new TextEncoder().encode(secret);
+
+    // Crear el JWT
+    const token = await new SignJWT({
+      ...payload,
+      iat: Math.floor(Date.now() / 1000), // issued at
+    })
+      .setProtectedHeader({ alg: "HS256" }) // Algoritmo
+      .setExpirationTime(`${expiresIn}s`) // Expiración
+      .setIssuedAt() // Timestamp de emisión
+      .sign(secretKey);
+
+
+    return {
+      access_token: token,
+      refresh_token: token, // En producción, genera uno diferente
+      expires_in: expiresIn,
+    };
+  } catch (error) {
+    throw error;
+  }
+}
+
+// Crear instancia de axios
 const appService = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_SERVICE,
   headers: {
@@ -9,101 +81,205 @@ const appService = axios.create({
   },
 });
 
-// Request interceptor
-appService.interceptors.request.use(
-  (config) => {
-    // set access_token temporaly from env var for testing purposes
-    const accessTokenFromEnv = process.env.NEXT_PUBLIC_ACCESS_TOKEN;
-    localStorage.setItem("access_token", accessTokenFromEnv || "");
-    const accessToken =
-      typeof window !== "undefined"
-        ? localStorage.getItem("access_token")
-        : accessTokenFromEnv;
+// Variables para control de refresh token
+let isRefreshing = false;
+let failedQueue: Array<{
+  resolve: (value?: unknown) => void;
+  reject: (reason?: unknown) => void;
+}> = [];
 
-    if (!config.headers) {
-      throw new Error(
-        "Expected 'config' and 'config.headers' not to be undefined"
-      );
+const processQueue = (error: Error | null, token: string | null = null) => {
+  failedQueue.forEach((prom) => {
+    if (error) {
+      prom.reject(error);
+    } else {
+      prom.resolve(token);
+    }
+  });
+  failedQueue = [];
+};
+
+// REQUEST INTERCEPTOR
+appService.interceptors.request.use(
+  async (config: InternalAxiosRequestConfig) => {
+
+    // Intentar obtener el token de localStorage
+    let accessToken = getStorageItem("access_token");
+
+    // Si no hay token, generar uno nuevo automáticamente
+    if (!accessToken && isBrowser()) {
+      try {
+        const tokenData = await generateJwtToken({
+          user: "gasolinera-sv",
+          purpose: "gasolineras-app",
+        });
+
+        setStorageItem("access_token", tokenData.access_token);
+        setStorageItem("refresh_token", tokenData.refresh_token);
+        setStorageItem("expiresIn", tokenData.expires_in.toString());
+
+        accessToken = tokenData.access_token;
+      } catch (error) {
+      }
     }
 
     if (accessToken) {
       config.headers.Authorization = `Bearer ${accessToken}`;
     }
 
+
     return config;
   },
-  (error: AxiosError) => Promise.reject(error)
+  (error: AxiosError) => {
+    return Promise.reject(error);
+  }
 );
 
-// Response interceptor
+// RESPONSE INTERCEPTOR
 appService.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    return response;
+  },
   async (error: AxiosError) => {
+    const originalRequest = error.config as InternalAxiosRequestConfig & {
+      _retry?: boolean;
+    };
+
+
+    // Error de red
     if (!error.response) {
-      console.log("Error: Network Error");
-    } else {
-      console.log("Error: ", error.response);
+      toast.error("Error de red. Por favor, verifica tu conexión.");
+      return Promise.reject(error);
+    }
 
-      if (error.response.status === 403) {
-        toast.error("Not authorized to perform this action");
+    const { status } = error.response;
+
+    // 403 Forbidden
+    if (status === 403) {
+      toast.error("No autorizado para realizar esta acción");
+      return Promise.reject(error);
+    }
+
+    // 401 Unauthorized - Intentar refresh token
+    if (status === 401 && originalRequest && !originalRequest._retry) {
+
+      // Si ya estamos refrescando, encolar la petición
+      if (isRefreshing) {
+        return new Promise((resolve, reject) => {
+          failedQueue.push({ resolve, reject });
+        })
+          .then((token) => {
+            if (originalRequest.headers) {
+              originalRequest.headers.Authorization = `Bearer ${token}`;
+            }
+            return appService(originalRequest);
+          })
+          .catch((err) => Promise.reject(err));
       }
-      // Unauthorized → try refresh token
-      else if (error.response.status === 401) {
-        const refreshToken =
-          typeof window !== "undefined"
-            ? localStorage.getItem("refresh_token")
-            : null;
 
-        if (refreshToken) {
-          try {
-            const response = await appService.post("/api/auth/refresh", {
-              refresh_token: refreshToken,
-            });
+      originalRequest._retry = true;
+      isRefreshing = true;
 
-            const { access_token, refresh_token, expires_in } = response.data;
-            localStorage.setItem("access_token", access_token);
-            localStorage.setItem("refresh_token", refresh_token);
-            localStorage.setItem("expiresIn", expires_in.toString());
+      try {
 
-            // Retry original request
-            if (error.config?.headers) {
-              error.config.headers.Authorization = `Bearer ${access_token}`;
-            }
-            return axios(error.config!);
-          } catch (refreshError) {
-            console.error("Error refreshing token:", refreshError);
-            localStorage.removeItem("access_token");
-            localStorage.removeItem("refresh_token");
-            localStorage.removeItem("expiresIn");
-            if (typeof window !== "undefined") {
-              // window.location.href = "/signin";
-            }
-          }
-        } else {
-          localStorage.removeItem("access_token");
-          localStorage.removeItem("refresh_token");
-          localStorage.removeItem("expiresIn");
-          if (typeof window !== "undefined") {
-            // window.location.href = "/signin";
-          }
+        // Generar un nuevo token
+        const tokenData = await generateJwtToken({
+          user: "demo-user",
+          purpose: "refresh",
+          timestamp: Date.now(),
+        });
+
+        // Guardar nuevos tokens
+        setStorageItem("access_token", tokenData.access_token);
+        setStorageItem("refresh_token", tokenData.refresh_token);
+        setStorageItem("expiresIn", tokenData.expires_in.toString());
+
+        // Actualizar header de la petición original
+        if (originalRequest.headers) {
+          originalRequest.headers.Authorization = `Bearer ${tokenData.access_token}`;
         }
-      } else if (error.response.status === 404) {
-        toast.error("Service not found (404)");
-      } else if (error.response.status === 400) {
-        toast.error((error.response.data as string) || "Bad request");
-      } else if (error.response.status === 500) {
-        toast.error(
-          "An error occurred while processing the request. Please try again. If the error persists, contact the administrator."
-        );
-      } else if (!error.response || !error.response.data) {
-        toast.error(
-          "An unexpected error occurred. If the error persists, please reload the page."
-        );
+
+        // Procesar peticiones encoladas
+        processQueue(null, tokenData.access_token);
+        isRefreshing = false;
+
+        // Reintentar petición original
+        return appService(originalRequest);
+      } catch (refreshError) {
+        processQueue(refreshError as Error, null);
+        isRefreshing = false;
+
+        // Limpiar tokens
+        removeStorageItem("access_token");
+        removeStorageItem("refresh_token");
+        removeStorageItem("expiresIn");
+
+        toast.error("Sesión expirada. Por favor, inicia sesión de nuevo.");
+        return Promise.reject(refreshError);
       }
+    }
+
+    // Otros errores
+    if (status === 404) {
+      toast.error("Service not found (404)");
+    } else if (status === 400) {
+      const message = (error.response.data as any)?.message || "Bad request";
+      toast.error(message);
+    } else if (status === 500) {
+      toast.error("Error del servidor. Por favor, inténtelo de nuevo más tarde.");
+    } else {
+      
     }
 
     return Promise.reject(error);
   }
 );
 
-export default appService;  
+// Función helper para inicializar/regenerar token manualmente
+export const initializeAuth = async (customPayload = {}): Promise<void> => {
+  try {
+    const tokenData = await generateJwtToken(customPayload);
+    setStorageItem("access_token", tokenData.access_token);
+    setStorageItem("refresh_token", tokenData.refresh_token);
+    setStorageItem("expiresIn", tokenData.expires_in.toString());
+    toast.success("Token generated successfully!");
+  } catch (error) {
+    toast.error("Error al generar el token");
+    throw error;
+  }
+};
+
+// Función helper para logout
+export const logout = (): void => {
+  removeStorageItem("access_token");
+  removeStorageItem("refresh_token");
+  removeStorageItem("expiresIn");
+};
+
+// Función para ver el token actual
+export const getDecodedToken = (): any => {
+  const token = getStorageItem("access_token");
+  if (!token) {
+    toast.error("No se encontró el token");
+    return null;
+  }
+
+  try {
+    // Decodificar el payload (parte central del JWT)
+    const base64Url = token.split('.')[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const jsonPayload = decodeURIComponent(
+      atob(base64)
+        .split('')
+        .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+        .join('')
+    );
+
+    const decoded = JSON.parse(jsonPayload);
+    return decoded;
+  } catch (error) {
+    toast.error("Error al decodificar el token");
+  }
+};
+
+export default appService;

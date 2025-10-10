@@ -16,8 +16,17 @@ export const useNearByGasStations = (enabled: boolean, queryParams?: QueryParams
 
 // GET GAS STATIONS
 export const useGasStations = (enabled: boolean, queryParams?: QueryParamsGasStations) => {
+    // setear valor por defecto de size si no está definido
+    if (!queryParams?.size) {
+        queryParams = { ...queryParams, size: 20 };
+    }
+
+    if (!queryParams?.page) {
+        queryParams = { ...queryParams, page: 0 };
+    }
+    
     return useQuery({
-        queryKey: ["gas-stations"],
+        queryKey: ["gas-stations", queryParams],
         queryFn: (): Promise<ApiResponse> =>
             appService
                 .get(`/gasolineras`, { params: queryParams })
