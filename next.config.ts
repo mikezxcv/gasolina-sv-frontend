@@ -10,7 +10,14 @@ const nextConfig: NextConfig = {
     return config;
   },
   images: {
-    domains: ['maps.geoapify.com'],
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'maps.geoapify.com',
+        port: '',
+        pathname: '/**',
+      },
+    ],
   },
 };
 

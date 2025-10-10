@@ -32,7 +32,7 @@ export default function AdminLayout({
 
   return (
     <QueryClientProvider client={queryClient}>
-      <div className="min-h-screen xl:flex">
+      <div className="">
         {/* Sidebar and Backdrop */}
         {/* <AppSidebar /> */}
         {/* <Backdrop /> */}
