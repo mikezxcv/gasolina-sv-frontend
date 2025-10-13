@@ -27,7 +27,7 @@ export default function StationDetailPage() {
     if (isError || !data) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-red-50 dark:bg-red-900">
-                <p className="text-red-500">Error al cargar los datos de la estación.</p>
+                <p className="text-red-500">No pudimos obtener los datos en este momento, por favor intenta de nuevo más tarde</p>
             </div>
         );
     };
