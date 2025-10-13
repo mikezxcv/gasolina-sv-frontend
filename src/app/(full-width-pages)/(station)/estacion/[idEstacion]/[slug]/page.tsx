@@ -7,6 +7,7 @@ import Button from "@/ui/button/Button";
 import { useParams } from "next/navigation";
 import { useGasStationById } from "@/app/(admin)/(api)/admin.api";
 import Spinner from "@/ui/spinner/Spinner";
+import AppFooter from "@/layout/AppFooter";
 
 export default function StationDetailPage() {
     const { idEstacion } = useParams();
@@ -93,10 +94,10 @@ export default function StationDetailPage() {
                                         {estacion}
                                     </h1>
                                     <p className="text-base text-gray-600 dark:text-gray-300 flex items-center gap-2 mb-1">
-                                        {direccion || "Dirección no disponible"}
+                                        {direccion?.toLowerCase() || "Dirección no disponible"}
                                     </p>
                                     <p className="text-base text-gray-600 dark:text-gray-300 mb-3 mt-4">
-                                        {municipio}, {departamento}
+                                        {municipio.toUpperCase()}, {departamento.toUpperCase()}
                                     </p>
                                     <div>
                                         {tienda ? (
@@ -206,6 +207,9 @@ export default function StationDetailPage() {
                         </div>
                     </div>
                 </div>
+            </div>
+            <div>
+                <AppFooter />
             </div>
         </div>
     );

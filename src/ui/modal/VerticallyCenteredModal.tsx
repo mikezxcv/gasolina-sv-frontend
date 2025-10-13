@@ -73,14 +73,35 @@ export default function VerticallyCenteredModal({
 
   const fecha = new Date(ultimoPrecio.fechaReporte).toLocaleString("es-SV");
 
-  const handleCopyLink = () => {
-    const stationUrl = `${window.location.origin}/detail-station/${id}`;
-    navigator.clipboard.writeText(stationUrl).then(() => {
-      closeModal();
-      toast.success("¡Enlace copiado al portapapeles!");
-    }).catch((err) => {
-      toast.error("Error al copiar el enlace:", err);
-    });
+  const handleCopyLink = async () => {
+    const slug = estacion.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+    const stationUrl = `${window.location.origin}/estacion/${id}/${slug}`;
+
+    // Si el navegador soporta la API Web Share (móvil o tablet)
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: estacion,
+          text: `Consulta los precios de combustible en ${estacion}`,
+          url: stationUrl,
+        });
+        closeModal();
+        toast.success("¡Compartido exitosamente!");
+      } catch (error) {
+        console.error("Error al compartir:", error);
+        toast.error("No se pudo compartir el enlace.");
+      }
+    } else {
+      // En PC o navegadores sin soporte
+      navigator.clipboard.writeText(stationUrl)
+        .then(() => {
+          closeModal();
+          toast.success("¡Enlace copiado al portapapeles!");
+        })
+        .catch((err) => {
+          toast.error("Error al copiar el enlace:", err);
+        });
+    }
   };
 
   return (
@@ -113,10 +134,10 @@ export default function VerticallyCenteredModal({
             </h4>
 
             <p className="text-sm text-gray-500 dark:text-gray-400 flex items-center gap-1">
-              {direccion || "Dirección no disponible"}
+              {direccion?.toLocaleLowerCase() || "Dirección no disponible"}
             </p>
             <p className="text-sm text-gray-500 dark:text-gray-500 mt-4">
-              {municipio}, {departamento}
+              {municipio.toUpperCase()}, {departamento.toUpperCase()}
             </p>
             <div className="mt-1">
               {tienda ? (
@@ -212,7 +233,7 @@ export default function VerticallyCenteredModal({
             onClick={handleCopyLink}
             className="flex items-center gap-2"
           >
-            <FaLink /> Copiar Enlace
+            <FaLink /> Compartir Enlace
           </Button>
           <Button size="sm" variant="outline" onClick={closeModal}>
             Cerrar

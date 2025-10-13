@@ -48,10 +48,12 @@ const AppHeader: React.FC = () => {
         {/* Left Section */}
         <div className="flex items-center gap-3 flex-shrink-0">
           <ThemeToggleButton />
-          <h1 className="text-lg font-semibold text-gray-900 dark:text-gray-100 tracking-tight whitespace-nowrap">
-            <FaGasPump className="inline-block mr-2 text-blue-600" />
-            Gasolina SV
-          </h1>
+          <button onClick={() => window.location.href = '/'}>
+            <h1 className="text-lg font-semibold text-gray-900 dark:text-gray-100 tracking-tight whitespace-nowrap">
+              <FaGasPump className="inline-block mr-2 text-blue-600" />
+              {process.env.NEXT_PUBLIC_APP_NAME || "Gasolina SV"}
+            </h1>
+          </button>
           <button
             onClick={handleNearMeClick}
             className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-2.5 rounded-xl shadow-sm transition-all duration-200 active:scale-95 whitespace-nowrap"

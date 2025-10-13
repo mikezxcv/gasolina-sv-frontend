@@ -8,6 +8,7 @@ import React, { useState } from "react";
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ToastContainer } from "react-toastify";
 import { FilterProvider } from "@/context/FiltersContext";
+import AppFooter from "@/layout/AppFooter";
 
 export default function AdminLayout({
   children,

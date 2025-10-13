@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import appService from "../../../services/app.service";
 import { ApiResponse, QueryParamsGasStationsNearBy, QueryParamsGasStations, Estacion } from "../(interfaces)/admin.interfaces";
 
@@ -24,7 +24,7 @@ export const useGasStations = (enabled: boolean, queryParams?: QueryParamsGasSta
     if (!queryParams?.page) {
         queryParams = { ...queryParams, page: 0 };
     }
-    
+
     return useQuery({
         queryKey: ["gas-stations", queryParams],
         queryFn: (): Promise<ApiResponse> =>
@@ -32,6 +32,25 @@ export const useGasStations = (enabled: boolean, queryParams?: QueryParamsGasSta
                 .get(`/gasolineras`, { params: queryParams })
                 .then((res) => res.data),
         enabled,
+    });
+};
+
+// INFINITE SCROLL GAS STATIONS
+export const useInfiniteGasStations = (enabled: boolean, queryParams?: QueryParamsGasStations) => {
+    return useInfiniteQuery({
+        queryKey: ["gas-stations", queryParams],
+        queryFn: ({ pageParam = 0 }): Promise<ApiResponse> =>
+            appService
+                .get(`/gasolineras`, { params: { ...queryParams, page: pageParam } })
+                .then((res) => res.data),
+        getNextPageParam: (lastPage) => {
+            if (!lastPage.last) {
+                return (lastPage.number ?? 0) + 1;
+            }
+            return undefined;
+        },
+        enabled,
+        initialPageParam: 0,
     });
 };
 
