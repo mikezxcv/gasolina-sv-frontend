@@ -6,7 +6,7 @@ import { ApiResponse, QueryParamsGasStationsNearBy, QueryParamsGasStations, Esta
 export const useNearByGasStations = (enabled: boolean, queryParams?: QueryParamsGasStationsNearBy) => {
     return useQuery({
         queryKey: ["nearby-gas-stations"],
-        queryFn: (): Promise<ApiResponse> =>
+        queryFn: (): Promise<Estacion[]> =>
             appService
                 .get(`/gasolineras/cercanas`, { params: queryParams })
                 .then((res) => res.data),

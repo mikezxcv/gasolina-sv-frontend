@@ -12,7 +12,7 @@ const AppHeader: React.FC = () => {
   const inputRef = useRef<HTMLInputElement>(null);
 
   const handleNearMeClick = () => {
-    window.open("/mapa", "_blank");
+    window.open("/cerca-de-mi", "_blank");
   };
 
   // Sincronizar el valor local con el del contexto cuando cambia externamente
