@@ -4,9 +4,10 @@ Proyecto frontend de un panel de administración para gestionar y visualizar est
 
 ## 🔎 Resumen
 
-- Framework: Next.js (App Router)
+- Framework: Next.js (App Router) 15.2.3
+- React 19: Biblioteca de interfaz de usuario
 - Lenguaje: TypeScript
-- Estilos: Tailwind CSS
+- Estilos: Tailwind CSS v4
 - State / Data fetching: @tanstack/react-query
 - Mapas: Geoapify (API pública para mapas estáticos en algunas vistas)
 - Autenticación: manejo de JWT en cliente (helpers en `src/services/app.service.ts`)
