@@ -1,6 +1,6 @@
-# Gasolina SV - Panel Admin (Frontend)
+# Gasolina SV - (Frontend)
 
-Proyecto frontend de un panel de administración para gestionar y visualizar estaciones de servicio en El Salvador. Está construido con Next.js (App Router), React, TypeScript y Tailwind CSS.
+Proyecto frontend para visualizar estaciones de servicio en El Salvador. Está construido con Next.js (App Router), React, TypeScript y Tailwind CSS.
 
 ## 🔎 Resumen
 
