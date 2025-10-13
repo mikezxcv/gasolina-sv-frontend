@@ -11,10 +11,7 @@ import AppFooter from "@/layout/AppFooter";
 
 export default function StationDetailPage() {
     const { idEstacion } = useParams();
-    console.log("idEstacion", idEstacion);
     const { data, isLoading, isError } = useGasStationById(true, idEstacion as string);
-
-    console.log("data", data);
 
     if (isLoading) {
         return (

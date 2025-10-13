@@ -40,7 +40,6 @@ export const metadata: Metadata = {
         images: ["https://gasolinerassv.com/og-image.jpg"],
         creator: "@GasolinerasSV",
     },
-    themeColor: "#0F172A",
     manifest: "/manifest.json",
 };
 

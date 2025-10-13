@@ -8,6 +8,14 @@ interface JwtResponse {
   expires_in: number;
 }
 
+interface JwtPayload {
+  user: string;
+  purpose: string;
+  iat?: number;
+  exp?: number;
+  timestamp?: number;
+}
+
 // Helper para verificar si estamos en el navegador
 const isBrowser = () => typeof window !== "undefined";
 
@@ -17,6 +25,7 @@ const getStorageItem = (key: string): string | null => {
   try {
     return localStorage.getItem(key);
   } catch (error) {
+    console.error("Error getting localStorage item:", error);
     return null;
   }
 };
@@ -26,6 +35,7 @@ const setStorageItem = (key: string, value: string): void => {
   try {
     localStorage.setItem(key, value);
   } catch (error) {
+    console.error("Error setting localStorage item:", error);
   }
 };
 
@@ -34,11 +44,12 @@ const removeStorageItem = (key: string): void => {
   try {
     localStorage.removeItem(key);
   } catch (error) {
+    console.error("Error removing localStorage item:", error);
   }
 };
 
 // Función para generar JWT en el CLIENTE usando jose
-async function generateJwtToken(payload = {}): Promise<JwtResponse> {
+async function generateJwtToken(payload = {} as JwtPayload): Promise<JwtResponse> {
   try {
 
     const secret = process.env.NEXT_PUBLIC_SECRET_KEY;
@@ -120,6 +131,7 @@ appService.interceptors.request.use(
 
         accessToken = tokenData.access_token;
       } catch (error) {
+        console.error("Error generating JWT token:", error);
       }
     }
 
@@ -223,6 +235,7 @@ appService.interceptors.response.use(
     if (status === 404) {
       toast.error("Service not found (404)");
     } else if (status === 400) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const message = (error.response.data as any)?.message || "Bad request";
       toast.error(message);
     } else if (status === 500) {
@@ -236,7 +249,7 @@ appService.interceptors.response.use(
 );
 
 // Función helper para inicializar/regenerar token manualmente
-export const initializeAuth = async (customPayload = {}): Promise<void> => {
+export const initializeAuth = async (customPayload = {} as JwtPayload): Promise<void> => {
   try {
     const tokenData = await generateJwtToken(customPayload);
     setStorageItem("access_token", tokenData.access_token);
@@ -257,7 +270,7 @@ export const logout = (): void => {
 };
 
 // Función para ver el token actual
-export const getDecodedToken = (): any => {
+export const getDecodedToken = (): JwtPayload | null => {
   const token = getStorageItem("access_token");
   if (!token) {
     toast.error("No se encontró el token");
@@ -278,7 +291,9 @@ export const getDecodedToken = (): any => {
     const decoded = JSON.parse(jsonPayload);
     return decoded;
   } catch (error) {
+    console.error("Error decoding token:", error);
     toast.error("Error al decodificar el token");
+    return null;
   }
 };
 

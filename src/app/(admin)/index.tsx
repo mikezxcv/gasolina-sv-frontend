@@ -6,12 +6,13 @@ import Spinner from "@/ui/spinner/Spinner";
 import Badge from "@/components/ui/badge/Badge";
 import { useFilters } from "@/context/FiltersContext";
 import AppFooter from "@/layout/AppFooter";
+import { QueryParamsGasStations } from "./(interfaces)/admin.interfaces";
 
 export default function Index() {
 	const { departamento, municipio, marca, searchTerm } = useFilters();
 
 	const queryParams = useMemo(() => {
-		const params: any = {};
+		const params: QueryParamsGasStations = {};
 		if (departamento && departamento !== '0') params.departamento = departamento;
 		if (municipio && municipio !== '0') params.municipio = municipio;
 		if (marca && marca !== '0') params.marca = marca;

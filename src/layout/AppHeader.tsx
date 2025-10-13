@@ -37,7 +37,6 @@ const AppHeader: React.FC = () => {
         inputRef.current?.focus();
       }
     };
-
     document.addEventListener("keydown", handleGlobalKeyDown);
     return () => document.removeEventListener("keydown", handleGlobalKeyDown);
   }, []);

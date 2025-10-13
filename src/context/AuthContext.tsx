@@ -51,7 +51,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
           setIsAuthenticated(true);
           scheduleTokenRefresh(expiresIn);
         } catch (error) {
-          console.error("Error decoding token:", error);
+          console.error("Error decoding JWT token:", error);
           logout();
         }
       }

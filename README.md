@@ -1,208 +1,145 @@
-# Dashboard Admin Panel
+# Gasolina SV - Panel Admin (Frontend)
 
-Un moderno panel de administración construido con las últimas tecnologías web, diseñado para proporcionar una experiencia de usuario fluida y profesional.
+Proyecto frontend de un panel de administración para gestionar y visualizar estaciones de servicio en El Salvador. Está construido con Next.js (App Router), React, TypeScript y Tailwind CSS.
 
-## 🚀 Características
+## 🔎 Resumen
 
-- **Dashboard interactivo** con visualización de datos en tiempo real
-- **Componentes UI modernos** y reutilizables
-- **Sidebar responsive** con navegación intuitiva
-- **Modo oscuro** integrado para mejor experiencia de usuario
-- **Gráficos y tablas** para análisis de datos con ApexCharts
-- **Calendario interactivo** con FullCalendar
-- **Mapas vectoriales** con React JVectorMap
-- **Drag & Drop** funcionalidad integrada
-- **Gestión de archivos** con React Dropzone
-- **Carruseles** con Swiper
-- **Formularios avanzados** con validación
+- Framework: Next.js (App Router)
+- Lenguaje: TypeScript
+- Estilos: Tailwind CSS
+- State / Data fetching: @tanstack/react-query
+- Mapas: Geoapify (API pública para mapas estáticos en algunas vistas)
+- Autenticación: manejo de JWT en cliente (helpers en `src/services/app.service.ts`)
 
-## 🛠️ Stack Tecnológico
+Este repo contiene la interfaz, componentes y páginas destinadas a administrar y mostrar información de estaciones de servicio (gasolineras).
 
-Este proyecto está construido con tecnologías de vanguardia:
+## Requisitos
 
-- **Next.js 15.2.3** - Framework React con SSR y SSG
-- **React 19** - Biblioteca de interfaz de usuario
-- **TypeScript 5** - Superset tipado de JavaScript
-- **Tailwind CSS V4** - Framework de CSS utility-first
-- **ApexCharts** - Librería de gráficos interactivos
-- **FullCalendar** - Componente de calendario completo
-- **React JVectorMap** - Mapas vectoriales interactivos
-- **React DnD** - Funcionalidad Drag and Drop
+- Node.js >= 18 (se recomienda 20+)
+- npm o yarn
+- Git
 
-## 📋 Requisitos Previos
+## Instalación rápida
 
-Antes de comenzar, asegúrate de tener instalado:
-
-- Node.js 18.x o superior (se recomienda Node.js 20.x o posterior)
-- npm o yarn como gestor de paquetes
-- Git para control de versiones
-
-## 🔧 Instalación
-
-1. **Clonar el repositorio**
+Clona el repositorio y instala dependencias:
 
 ```bash
-git clone https://github.com/mikezxcv/tailadmin-next-typescript-free-2.0-main.git
-cd tailadmin-next-typescript-free-2.0-main
-```
-
-> **Nota para usuarios de Windows:** Coloca el repositorio cerca de la raíz de tu unidad si encuentras problemas al clonar.
-
-2. **Instalar dependencias**
-
-```bash
+git clone https://github.com/jmanuelgnt/gasolina-sv-frontend.git
+cd gasolina-sv-frontend
 npm install
 # o
-yarn install
+# yarn
 ```
 
-> Si encuentras errores de dependencias peer, usa el flag `--legacy-peer-deps`:
-> ```bash
-> npm install --legacy-peer-deps
-> ```
-
-3. **Iniciar el servidor de desarrollo**
+Inicia en modo desarrollo:
 
 ```bash
 npm run dev
 # o
-yarn dev
+# yarn dev
 ```
 
-4. **Abrir en el navegador**
+Abre http://localhost:3000 en tu navegador.
 
-Navega a [http://localhost:3000](http://localhost:3000) para ver la aplicación en funcionamiento.
+## Variables de entorno
 
-## 📁 Estructura del Proyecto
+Copia el archivo de ejemplo `.env.template` a `.env` y ajusta los valores según tu entorno.
+
+Variables principales que usa la aplicación (también están en `.env` del proyecto):
+
+- NEXT_PUBLIC_API_SERVICE: URL base del API (ej: https://mi-api.example.com/api/v1)
+- NEXT_PUBLIC_GEOAPIFY_API_KEY: API Key para Geoapify (mapas estáticos)
+- NEXT_PUBLIC_SECRET_KEY: clave pública/semilla usada para generación de tokens en entorno de desarrollo
+- NEXT_PUBLIC_EXPIRENS_IN_SECONDS: tiempo de expiración por defecto (en segundos)
+- NEXT_PUBLIC_APP_NAME: nombre de la aplicación que se muestra en el header
+
+Ejemplo mínimo (.env.template):
+
+```
+NEXT_PUBLIC_API_SERVICE=https://gasolina-sv-api-production.up.railway.app/api/v1
+NEXT_PUBLIC_GEOAPIFY_API_KEY=tu_api_key_geoapify
+NEXT_PUBLIC_SECRET_KEY=alguna_clave_secreta_base64
+NEXT_PUBLIC_EXPIRENS_IN_SECONDS=120
+NEXT_PUBLIC_APP_NAME=Gasolina SV
+```
+
+> Nota: No comites credenciales ni claves reales al repositorio.
+
+## Scripts útiles
+
+- npm run dev: ejecución en desarrollo (localhost:3000)
+- npm run build: construcción de producción
+- npm run start: iniciar servidor de producción
+- npm run lint: corrección de lint
+
+## Estructura principal del proyecto
 
 ```
 .
-├── public/                 # Archivos estáticos e imágenes
-│   └── images/            # Recursos de imágenes
+├── public/                # Recursos estáticos (imágenes, SVGs, etc.)
 ├── src/
-│   ├── app/               # Next.js App Router (páginas y rutas)
-│   ├── components/        # Componentes React reutilizables
-│   ├── context/           # Context API de React
-│   ├── hooks/             # Custom React Hooks
-│   ├── icons/             # Componentes de iconos SVG
-│   └── layout/            # Componentes de layout (Header, Sidebar, etc.)
-├── .next/                 # Build de Next.js (generado automáticamente)
-├── package.json           # Dependencias y scripts del proyecto
-└── tsconfig.json          # Configuración de TypeScript
+│   ├── app/               # Rutas y páginas (Next.js App Router)
+│   ├── components/        # Componentes reutilizables
+│   ├── context/           # Providers (Auth, Filters, Theme, Sidebar)
+│   ├── hooks/             # Custom hooks
+│   ├── layout/            # Layouts y cabeceras (AppHeader, AppFooter, etc.)
+│   ├── services/          # Cliente API y utilidades (app.service.ts)
+│   └── ui/                # Componentes de UI globales (Modal, Button, etc.)
+├── .env                  # Variables de entorno (no incluidas en repo)
+├── package.json
+└── tsconfig.json
 ```
 
-## 🎨 Componentes y Librerías Principales
+## Puntos importantes del código
 
-### Visualización de Datos
-- **ApexCharts** - Gráficos de líneas, barras, áreas, dona y más
-- **React JVectorMap** - Mapas interactivos del mundo
+- `src/services/app.service.ts` contiene helpers para manejo de JWT y configuración de axios.
+- `src/app/(admin)` contiene las páginas y componentes del panel admin.
+- `src/app/(full-width-pages)` agrupa páginas que ocupan todo el ancho (por ejemplo, detalles de estación).
+- Modal reutilizable: `src/ui/modal/Modal.tsx` y variantes en `src/ui/modal/`.
 
-### Componentes de UI
-- **FullCalendar** - Calendario completo con vistas diaria, semanal y mensual
-- **React Dropzone** - Upload de archivos con drag & drop
-- **React DnD** - Funcionalidad de arrastrar y soltar
-- **Swiper** - Carruseles y sliders modernos
-- **Flatpickr** - Selector de fechas elegante
+## API y fetching
 
-### Utilidades
-- **Tailwind Merge** - Gestión optimizada de clases de Tailwind
-- **Tailwind Forms** - Estilos mejorados para formularios
+El proyecto usa `@tanstack/react-query` para consultas al backend. Hay hooks personalizados bajo `src/app/(admin)/(api)` que envuelven las llamadas al `appService`.
 
-## 🚀 Scripts Disponibles
+Ejemplos de hooks:
 
-```bash
-# Desarrollo - Inicia el servidor de desarrollo
-npm run dev
+- `useGasStations`, `useInfiniteGasStations` — listados paginados e infinite scroll
+- `useGasStationById` — obtener detalles por id
+- `useNearByGasStations` — estaciones cercanas usando coordenadas
 
-# Construcción - Genera la build de producción
-npm run build
+## Autenticación
 
-# Producción - Inicia el servidor de producción
-npm run start
+La app gestiona JWT en cliente. Revisa `src/context/AuthContext.tsx` y `src/services/app.service.ts` para entender cómo se generan/guardan/recuperan tokens. En desarrollo, `initializeAuth()` permite crear un token.
 
-# Linting - Revisa y corrige errores de código
-npm run lint
-```
+## Buenas prácticas y notas
 
-## 🔄 Versión Actual
+- Mantén las imágenes de marcas en `public/images/brand/` con nombres que coincidan con el campo `marca` de las estaciones.
+- Para mapas estáticos se emplea Geoapify (ver `.env` para la KEY). Si cambias proveedor, ajusta las URLs donde se construyen los mapas.
+- Evita exponer claves privadas en `.env` en repositorios públicos.
 
-**v2.0.2** - Actualización estable con Next.js 15.2.3
+## Contribuir
 
-### Características de esta versión:
-- Migración completa a Next.js 15 App Router
-- Soporte para React 19
-- Actualización a Tailwind CSS v4
-- Componentes optimizados con Server Components
-- Mejoras de rendimiento y seguridad
+1. Fork del repo
+2. Crea una rama feature: git checkout -b feature/mi-feature
+3. Haz commits con mensajes claros
+4. Abre PR desde tu rama hacia `main`
 
-## 🎯 Uso y Personalización
+## Reportar bugs
 
-### Estructura de Componentes
+Abre un issue describiendo:
+- Pasos para reproducir
+- Resultado esperado vs resultado actual
+- Logs o screenshots si aplica
 
-Los componentes están organizados de la siguiente manera:
+## Licencia
 
-- **`src/components/`** - Componentes reutilizables (botones, cards, tablas, etc.)
-- **`src/layout/`** - Componentes de estructura (Header, Sidebar, Footer)
-- **`src/app/`** - Páginas y rutas usando Next.js App Router
-- **`src/context/`** - Context providers para estado global
-- **`src/hooks/`** - Custom hooks para lógica reutilizable
-- **`src/icons/`** - Iconos SVG personalizados
-
-### Personalizar Estilos
-
-Todos los componentes usan Tailwind CSS. Para personalizar:
-
-1. Modifica las clases de Tailwind directamente en los componentes
-2. Ajusta la configuración en `tailwind.config.js` (si existe)
-3. Añade estilos globales en `src/app/globals.css`
-
-### Agregar Nuevas Páginas
-
-Utiliza el sistema de routing de Next.js App Router:
-
-```typescript
-// src/app/nueva-pagina/page.tsx
-export default function NuevaPagina() {
-  return <div>Mi nueva página</div>
-}
-```
-
-## 🌐 Navegadores Soportados
-
-- Chrome (última versión)
-- Firefox (última versión)
-- Safari (última versión)
-- Edge (última versión)
-
-## 📝 Licencia
-
-Este proyecto está bajo la Licencia MIT. Consulta el archivo LICENSE para más detalles.
-
-## 🤝 Contribuciones
-
-Las contribuciones son bienvenidas. Si encuentras algún error o tienes sugerencias de mejora:
-
-1. Fork el proyecto
-2. Crea una rama para tu feature (`git checkout -b feature/AmazingFeature`)
-3. Commit tus cambios (`git commit -m 'Add some AmazingFeature'`)
-4. Push a la rama (`git push origin feature/AmazingFeature`)
-5. Abre un Pull Request
-
-## 🐛 Reporte de Bugs
-
-Si encuentras un bug, por favor abre un issue con:
-- Descripción detallada del problema
-- Pasos para reproducirlo
-- Comportamiento esperado vs actual
-- Screenshots si aplica
-
-## 📧 Soporte
-
-Para preguntas o soporte:
-- Abre un issue en el repositorio
-- Revisa la documentación de Next.js
-- Consulta la documentación de Tailwind CSS
+Proyecto bajo la Licencia MIT. Consulta el archivo `LICENSE`.
 
 ---
 
-Desarrollado con ❤️ usando Next.js, React 19 y Tailwind CSS
+Si quieres, puedo:
+- Añadir un archivo `.env.template` si falta
+- Generar instrucciones de despliegue (Vercel, Docker)
+- Documentar algunos hooks o componentes concretos en el README
+
+Dime qué prefieres y lo hago.

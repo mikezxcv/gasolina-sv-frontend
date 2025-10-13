@@ -1,21 +1,21 @@
 "use client";
 
-import { useSidebar } from "@/context/SidebarContext";
+// import { useSidebar } from "@/context/SidebarContext";
 import AppHeader from "@/layout/AppHeader";
-import AppSidebar from "@/layout/AppSidebar";
-import Backdrop from "@/layout/Backdrop";
+// import AppSidebar from "@/layout/AppSidebar";
+// import Backdrop from "@/layout/Backdrop";
 import React, { useState } from "react";
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ToastContainer } from "react-toastify";
 import { FilterProvider } from "@/context/FiltersContext";
-import AppFooter from "@/layout/AppFooter";
+// import AppFooter from "@/layout/AppFooter";
 
 export default function AdminLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const { isExpanded, isHovered, isMobileOpen } = useSidebar();
+  // const { isExpanded, isHovered, isMobileOpen } = useSidebar();
   const [queryClient] = useState(() => new QueryClient({
     defaultOptions: {
       queries: {
@@ -26,11 +26,11 @@ export default function AdminLayout({
   }));
 
   // Dynamic class for main content margin based on sidebar state
-  const mainContentMargin = isMobileOpen
-    ? "ml-0"
-    : isExpanded || isHovered
-      ? "lg:ml-[290px]"
-      : "lg:ml-[90px]";
+  // const mainContentMargin = isMobileOpen
+  //   ? "ml-0"
+  //   : isExpanded || isHovered
+  //     ? "lg:ml-[290px]"
+  //     : "lg:ml-[90px]";
 
   return (
     <QueryClientProvider client={queryClient}>
