@@ -56,7 +56,7 @@ export default function Index() {
 		<div className="grid grid-cols-12 gap-4 md:gap-6">
 			{isError && (
 				<div className="col-span-12 flex justify-center">
-					<Badge size="md" color="error">Error cargando gasolineras.</Badge>
+					<Badge size="md" color="error">No pudimos obtener los datos en este momento, por favor intenta de nuevo más tarde</Badge>
 				</div>
 			)}
 			{isLoading && <Spinner />}

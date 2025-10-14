@@ -160,7 +160,7 @@ appService.interceptors.response.use(
 
     // Error de red
     if (!error.response) {
-      toast.error("Error de red. Por favor, verifica tu conexión.");
+      toast.error("Error al conectar con el servidor.");
       return Promise.reject(error);
     }
 
