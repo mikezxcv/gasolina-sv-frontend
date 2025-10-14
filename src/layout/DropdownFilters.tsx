@@ -24,10 +24,12 @@ const DropdownFilters: React.FC = () => {
 
     // Función para normalizar texto (minúsculas y sin tildes)
     const normalizeText = (text: string): string => {
+        // return text
+        //     .toLowerCase()
+        //     .normalize("NFD")
+        //     .replace(/[\u0300-\u036f]/g, "");
         return text
-            .toLowerCase()
-            .normalize("NFD")
-            .replace(/[\u0300-\u036f]/g, "");
+            .toLowerCase();
     };
 
     // Sincronizar valores temporales con el contexto cuando se abre el dropdown

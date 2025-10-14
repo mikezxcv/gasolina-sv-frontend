@@ -130,7 +130,7 @@ export default function StationDetailPage() {
                                                 {p.auto !== null && p.auto !== undefined && (
                                                     <div className="flex flex-col gap-2">
                                                         <Badge variant="solid" color="success">
-                                                            Servicio Normal
+                                                            Autoservicio
                                                         </Badge>
                                                         <span className="text-2xl font-bold text-gray-900 dark:text-white">
                                                             ${p.auto.toFixed(2)}

@@ -46,7 +46,7 @@ export default function VerticallyCenteredModal({
       ? `https://www.google.com/maps?q=${latitude},${longitude}`
       : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(estacion)}`;
 
-  // Precios diferenciando servicio normal / completo
+  // Precios diferenciando autoservicio / completo
   const precios = [
     {
       label: "Regular",
@@ -169,7 +169,7 @@ export default function VerticallyCenteredModal({
                   <div className="flex flex-wrap gap-4">
                     {p.auto !== null && p.auto !== undefined && (
                       <div className="flex items-center gap-2">
-                        <Badge variant="solid" color="success">Servicio Normal</Badge>
+                        <Badge variant="solid" color="success">Autoservicio</Badge>
                         <span className="text-lg font-bold text-gray-800 dark:text-white">
                           ${p.auto.toFixed(2)}
                         </span>

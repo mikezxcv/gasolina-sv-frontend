@@ -1,7 +1,7 @@
 "use client";
 
 import { ThemeToggleButton } from "@/components/common/ThemeToggleButton";
-import { FaMapMarkerAlt, FaSearch, FaGasPump } from "react-icons/fa";
+import { FaSearch, FaGasPump } from "react-icons/fa";
 import React, { useRef, useEffect, useState } from "react";
 import DropdownFilters from "./DropdownFilters";
 import { useFilters } from "@/context/FiltersContext";
@@ -11,9 +11,9 @@ const AppHeader: React.FC = () => {
   const [localSearchTerm, setLocalSearchTerm] = useState(searchTerm);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const handleNearMeClick = () => {
-    window.open("/cerca-de-mi", "_blank");
-  };
+  // const handleNearMeClick = () => {
+  //   window.open("/cerca-de-mi", "_blank");
+  // };
 
   // Sincronizar el valor local con el del contexto cuando cambia externamente
   useEffect(() => {
@@ -53,13 +53,13 @@ const AppHeader: React.FC = () => {
               {process.env.NEXT_PUBLIC_APP_NAME || "Gasolina SV"}
             </h1>
           </button>
-          <button
+          {/* <button
             onClick={handleNearMeClick}
             className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-2.5 rounded-xl shadow-sm transition-all duration-200 active:scale-95 whitespace-nowrap"
           >
             <FaMapMarkerAlt className="w-4 h-4" />
             <span>Cerca de mí</span>
-          </button>
+          </button> */}
         </div>
 
         {/* Search & Filters */}
