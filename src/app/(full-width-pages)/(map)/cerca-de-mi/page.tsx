@@ -1,8 +1,345 @@
-export default function MapNearByMe() {
+'use client';
+import { useNearByGasStations } from '@/app/(admin)/(api)/admin.api';
+import {
+    APIProvider,
+    Map,
+    AdvancedMarker,
+    InfoWindow,
+    useMap,
+} from '@vis.gl/react-google-maps';
+import { Estacion } from '@/app/(admin)/(interfaces)/admin.interfaces';
+import { useEffect, useState } from 'react';
+import { FaCrosshairs, FaRuler, FaStore, FaCalendarAlt } from 'react-icons/fa';
+import { toast } from 'react-toastify';
+import Image from 'next/image';
+
+function MapNearByMe() {
+    const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '';
+    const defaultPosition = {
+        lat: Number(process.env.NEXT_PUBLIC_DEFAULT_LATITUDE ?? 13.69294),
+        lng: Number(process.env.NEXT_PUBLIC_DEFAULT_LONGITUDE ?? -89.21819),
+    };
+    const defaultZoom = Number(process.env.NEXT_PUBLIC_DEFAULT_ZOOM ?? 12);
+    const defaultRadiusKm = Number(process.env.NEXT_PUBLIC_DEFAULT_RADIUS ?? 5000) / 1000; // en kilómetros
+
+    const [center, setCenter] = useState(defaultPosition);
+    const [radiusKm, setRadiusKm] = useState(defaultRadiusKm);
+    const [selectedStation, setSelectedStation] = useState<Estacion | null>(null);
+    const [hoveredStationId, setHoveredStationId] = useState<string | null>(null);
+
+    const { data: estaciones, isLoading, refetch } = useNearByGasStations(true, {
+        lat: center.lat,
+        lng: center.lng,
+        radioKm: radiusKm,
+    });
+
+    // Obtener ubicación actual
+    const handleUseMyLocation = () => {
+        if (!navigator.geolocation) {
+            toast.error('Tu navegador no soporta geolocalización');
+            return;
+        }
+        navigator.geolocation.getCurrentPosition(
+            (pos) => {
+                const { latitude, longitude } = pos.coords;
+                setCenter({ lat: latitude, lng: longitude });
+                toast.success('Ubicación actualizada');
+            },
+            () => toast.error('No se pudo obtener tu ubicación')
+        );
+    };
+
+    // Refetch cuando cambie el radio o la ubicación
+    useEffect(() => {
+        refetch();
+    }, [center, radiusKm]);
 
     return (
-        <div className="p-4 md:p-8 flex flex-col items-center">
-            <h1 className="text-2xl md:text-4xl font-bold mb-4">Cerca de mí</h1>    
+        <div className="relative w-full h-screen">
+            <APIProvider apiKey={apiKey}>
+                <Map
+                    style={{ width: '100%', height: '100%' }}
+                    defaultCenter={center}
+                    defaultZoom={defaultZoom}
+                    gestureHandling="greedy"
+                    disableDefaultUI={false}
+                    mapId={'DEMO_MAP_ID'}
+                >
+                    <AnimatedRadius center={center} radiusKm={radiusKm} />
+
+                    {/* Punto azul animado (ubicación actual) */}
+                    <AdvancedMarker position={center}>
+                        <div className="relative">
+                            <div className="w-4 h-4 bg-blue-600 rounded-full border-2 border-white animate-pulse" />
+                            <div className="absolute inset-0 rounded-full border border-blue-400 opacity-70 animate-ping" />
+                        </div>
+                    </AdvancedMarker>
+
+                    {/* Marcadores de estaciones */}
+                    {estaciones?.map(
+                        (estacion: Estacion) =>
+                            estacion.latitude &&
+                            estacion.longitude && (
+                                <AdvancedMarker
+                                    key={estacion.id}
+                                    position={{ lat: estacion.latitude, lng: estacion.longitude }}
+                                    onClick={() =>
+                                        setSelectedStation(
+                                            selectedStation?.id === estacion.id ? null : estacion
+                                        )
+                                    }
+                                >
+                                    {/* Marcador personalizado: muestra precio regular por defecto, logo al hacer hover */}
+                                    <div
+                                        className="flex items-center justify-center"
+                                        onMouseEnter={() => setHoveredStationId(estacion.id)}
+                                        onMouseLeave={() => setHoveredStationId((id) => (id === estacion.id ? null : id))}
+                                    >
+                                        {hoveredStationId === estacion.id ? (
+                                            // Mostrar logo dentro de un marcador circular en el hover
+                                            <div className="w-12 h-12 rounded-full bg-white flex items-center justify-center shadow-md border-2 border-gray-100 transition-transform transform hover:scale-110">
+                                                {/* Usamos img en lugar de next/image para evitar problemas dentro del marker */}
+                                                <Image
+                                                    width={40}
+                                                    height={40}
+                                                    src={`/images/brand/${estacion.marca}.svg`}
+                                                    alt={estacion.marca}
+                                                />
+                                            </div>
+                                        ) : (
+                                            // Mostrar precio de gasolina regular por defecto
+                                            <div className="w-12 h-12 rounded-full bg-white flex flex-col items-center justify-center shadow-md border border-gray-200 p-2 hover:scale-110 transition-transform">
+                                                <span className="text-xs text-gray-500">Reg</span>
+                                                <span className="text-sm font-bold text-gray-900">
+                                                    {getRegularPriceText(estacion)}
+                                                </span>
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    {selectedStation?.id === estacion.id && (
+                                        <InfoWindow
+                                            position={{
+                                                lat: estacion.latitude,
+                                                lng: estacion.longitude,
+                                            }}
+                                            onCloseClick={() => setSelectedStation(null)}
+                                        >
+                                            <div className="p-3 text-gray-800 text-sm min-w-[240px]">
+                                                <div className="flex items-start gap-3">
+                                                    <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center overflow-hidden">
+                                                        <Image
+                                                            width={40}
+                                                            height={40}
+                                                            src={`/images/brand/${estacion.marca}.svg`}
+                                                            alt={estacion.marca}
+                                                            className="object-contain w-full h-full p-1"
+                                                        />
+                                                    </div>
+                                                    <div className="flex-1">
+                                                        <p className="font-semibold text-base mb-0">{estacion.estacion}</p>
+                                                        <p className="text-gray-500 text-xs mb-2">{estacion.marca}</p>
+                                                    </div>
+                                                </div>
+
+                                                <div className="mt-2 space-y-1">
+                                                    {[
+                                                        {
+                                                            label: 'Regular',
+                                                            auto: estacion.ultimoPrecio.regularAuto,
+                                                            sc: estacion.ultimoPrecio.regularSc,
+                                                        },
+                                                        {
+                                                            label: 'Especial',
+                                                            auto: estacion.ultimoPrecio.especialAuto,
+                                                            sc: estacion.ultimoPrecio.especialSc,
+                                                        },
+                                                        {
+                                                            label: 'Diésel',
+                                                            auto:
+                                                                estacion.ultimoPrecio.dieselAuto ??
+                                                                estacion.ultimoPrecio.dieselLSAuto ??
+                                                                estacion.ultimoPrecio.ionDieselAuto,
+                                                            sc:
+                                                                estacion.ultimoPrecio.dieselSc ??
+                                                                estacion.ultimoPrecio.dieselLSSc ??
+                                                                estacion.ultimoPrecio.ionDieselSc,
+                                                        },
+                                                    ].map((p) => (
+                                                        <div key={p.label}>
+                                                            <p className="text-[11px] font-medium">{p.label}</p>
+                                                            {p.auto || p.sc ? (
+                                                                <div className="flex gap-2 text-[11px] mt-1">
+                                                                    {p.auto && (
+                                                                        <span className="bg-green-100 text-green-700 px-1.5 py-0.5 rounded-md font-semibold">
+                                                                            A: ${p.auto.toFixed(2)}
+                                                                        </span>
+                                                                    )}
+                                                                    {p.sc && (
+                                                                        <span className="bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded-md font-semibold">
+                                                                            SC: ${p.sc.toFixed(2)}
+                                                                        </span>
+                                                                    )}
+                                                                </div>
+                                                            ) : (
+                                                                <p className="italic text-gray-400 text-[10px]">No hay datos</p>
+                                                            )}
+                                                        </div>
+                                                    ))}
+                                                </div>
+
+                                                {/* Tienda */}
+                                                <div className="mt-2 flex items-center gap-2">
+                                                    {estacion.tienda ? (
+                                                        <span className="inline-flex items-center gap-2 px-2 py-1 bg-green-100 text-green-700 rounded-md text-xs">
+                                                            <FaStore /> Con tienda
+                                                        </span>
+                                                    ) : (
+                                                        <span className="inline-flex items-center gap-2 px-2 py-1 bg-gray-100 text-gray-500 rounded-md text-xs">
+                                                            <FaStore /> Sin tienda
+                                                        </span>
+                                                    )}
+                                                </div>
+
+                                                {/* Fecha */}
+                                                <p className="flex items-center gap-2 text-xs text-gray-500 mt-2">
+                                                    <FaCalendarAlt /> Última actualización:{' '}
+                                                    <span className="font-medium">{new Date(estacion.ultimoPrecio.fechaReporte).toLocaleString('es-SV')}</span>
+                                                </p>
+
+                                                {/* Botones: Cómo llegar + Ver detalle */}
+                                                <div className="mt-3 flex gap-2">
+                                                    <a
+                                                        href={`https://www.google.com/maps?q=${estacion.latitude},${estacion.longitude}`}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        className="block mt-2 text-blue-500 underline text-xs text-center"
+                                                    >
+                                                        Abrir en Google Maps
+                                                    </a>
+
+                                                    <a
+                                                        href={`/estacion/${estacion.id}/${estacion.estacion.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')}`}
+                                                        className="block mt-2 text-blue-500 underline text-xs text-center"
+                                                    >
+                                                        Ver detalle Completo
+                                                    </a>
+                                                </div>
+
+                                            </div>
+                                        </InfoWindow>
+                                    )}
+                                </AdvancedMarker>
+                            )
+                    )}
+                </Map>
+            </APIProvider>
+
+            {/* Controles */}
+            <div className="absolute top-4 left-4 z-10 flex flex-col gap-2">
+                <button
+                    onClick={handleUseMyLocation}
+                    className="flex items-center gap-2 bg-white px-3 py-2 rounded-lg shadow-md hover:bg-gray-50"
+                >
+                    <FaCrosshairs className="text-gray-700" />
+                    <span className="text-sm font-medium text-gray-800">Usar mi ubicación</span>
+                </button>
+
+                <div className="bg-white px-3 py-2 rounded-lg shadow-md flex items-center gap-2">
+                    <FaRuler className="text-gray-700" />
+                    <input
+                        type="number"
+                        min={1}
+                        max={50}
+                        value={radiusKm}
+                        onChange={(e) =>
+                            setRadiusKm(Math.max(1, Number(e.target.value) || 1))
+                        }
+                        className="w-16 border border-gray-300 rounded px-2 py-1 text-sm"
+                    />
+                    <span className="text-sm text-gray-800">km</span>
+                </div>
+            </div>
+
+            {/* Indicador de carga */}
+            {isLoading && (
+                <div className="absolute inset-0 flex items-center justify-center bg-white/60 z-20">
+                    <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-blue-600"></div>
+                </div>
+            )}
         </div>
     );
 }
+
+/* === Componente para dibujar y animar el círculo del radio === */
+function AnimatedRadius({
+    center,
+    radiusKm,
+}: {
+    center: { lat: number; lng: number };
+    radiusKm: number;
+}) {
+    const map = useMap();
+    const [circle, setCircle] = useState<google.maps.Circle | null>(null);
+
+    useEffect(() => {
+        if (!map) return;
+
+        // Si ya existe un círculo previo, elimínalo del mapa
+        if (circle) circle.setMap(null);
+
+        const newCircle = new google.maps.Circle({
+            map,
+            center,
+            radius: radiusKm * 1000,
+            strokeColor: '#2563eb',
+            strokeOpacity: 0.9,
+            strokeWeight: 2,
+            fillColor: '#3b82f6',
+            fillOpacity: 0.15,
+        });
+        setCircle(newCircle);
+
+        // Animación de “pulsación” visual al cambiar el radio
+        let opacity = 0.15;
+        let scale = 1;
+        let frame = 0;
+        const frames = 30;
+
+        const animate = () => {
+            frame++;
+            opacity = 0.15 + 0.05 * Math.sin((frame / frames) * Math.PI);
+            scale = 1 + 0.03 * Math.sin((frame / frames) * Math.PI);
+            newCircle.setOptions({
+                fillOpacity: opacity,
+                radius: radiusKm * 1000 * scale,
+            });
+            if (frame < frames) requestAnimationFrame(animate);
+            else newCircle.setOptions({
+                fillOpacity: 0.15,
+                radius: radiusKm * 1000,
+            });
+        };
+        animate();
+
+        // Cleanup
+        return () => {
+            newCircle.setMap(null);
+        };
+    }, [map, center, radiusKm]);
+
+    return null;
+}
+
+function getRegularPriceText(estacion: Estacion) {
+    const precio = estacion.ultimoPrecio.regularAuto ?? estacion.ultimoPrecio.regularSc ?? null;
+    if (precio === null || precio === undefined) return 'N/D';
+    try {
+        return `$${precio.toFixed(2)}`;
+    } catch (e) {
+        console.error(e);
+        return 'N/D';
+    }
+}
+
+export default MapNearByMe;
