@@ -220,6 +220,8 @@ function MapNearByMe() {
 
                                                     <a
                                                         href={`/estacion/${estacion.id}/${estacion.estacion.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')}`}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
                                                         className="block mt-2 text-blue-500 underline text-xs text-center"
                                                     >
                                                         Ver detalle Completo
