@@ -28,10 +28,11 @@ function MapNearByMe() {
     const [selectedStation, setSelectedStation] = useState<Estacion | null>(null);
     const [hoveredStationId, setHoveredStationId] = useState<string | null>(null);
     const [pendingCenter, setPendingCenter] = useState<{ lat: number; lng: number } | null>(null);
+    const [isInitialLoad, setIsInitialLoad] = useState(true);
     const mapRef = useRef<google.maps.Map | null>(null);
     const hasRequestedLocation = useRef(false);
 
-    const { data: estaciones, isLoading, refetch } = useNearByGasStations(true, {
+    const { data: estaciones, isLoading, refetch } = useNearByGasStations(!isInitialLoad, {
         lat: center.lat,
         lng: center.lng,
         radioKm: radiusKm,
@@ -57,6 +58,7 @@ function MapNearByMe() {
     const requestInitialLocation = () => {
         if (!navigator.geolocation) {
             toast.info('Tu navegador no soporta geolocalización. Usando ubicación por defecto.');
+            setIsInitialLoad(false); // Permitir que la API se llame con la ubicación por defecto
             return;
         }
 
@@ -74,11 +76,13 @@ function MapNearByMe() {
                     setPendingCenter(newCenter);
                 }
                 
+                setIsInitialLoad(false); // Permitir que la API se llame con la nueva ubicación
                 toast.success('Ubicación obtenida correctamente');
             },
             (error) => {
                 console.error('Error al obtener ubicación:', error);
                 toast.info('Usando ubicación por defecto');
+                setIsInitialLoad(false); // Permitir que la API se llame con la ubicación por defecto
             },
             {
                 enableHighAccuracy: true,
@@ -132,10 +136,12 @@ function MapNearByMe() {
         setRadiusKm(tempRadiusKm);
     };
 
-    // Refetch cuando cambie el radio final o la ubicación
+    // Refetch cuando cambie el radio final o la ubicación (solo después de la carga inicial)
     useEffect(() => {
-        refetch();
-    }, [center, radiusKm, refetch]);
+        if (!isInitialLoad) {
+            refetch();
+        }
+    }, [center, radiusKm, refetch, isInitialLoad]);
 
     return (
         <div className="relative w-full h-screen">
