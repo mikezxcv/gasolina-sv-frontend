@@ -49,7 +49,6 @@ Copia el archivo de ejemplo `.env.template` a `.env` y ajusta los valores según
 Variables principales que usa la aplicación (también están en `.env` del proyecto):
 
 - NEXT_PUBLIC_API_SERVICE: URL base del API (ej: https://mi-api.example.com/api/v1)
-- NEXT_PUBLIC_GEOAPIFY_API_KEY: API Key para Geoapify (mapas estáticos)
 - NEXT_PUBLIC_SECRET_KEY: clave pública/semilla usada para generación de tokens en entorno de desarrollo
 - NEXT_PUBLIC_EXPIRENS_IN_SECONDS: tiempo de expiración por defecto (en segundos)
 - NEXT_PUBLIC_APP_NAME: nombre de la aplicación que se muestra en el header
@@ -58,7 +57,6 @@ Ejemplo mínimo (.env.template):
 
 ```
 NEXT_PUBLIC_API_SERVICE=https://gasolina-sv-api-production.up.railway.app/api/v1
-NEXT_PUBLIC_GEOAPIFY_API_KEY=tu_api_key_geoapify
 NEXT_PUBLIC_SECRET_KEY=alguna_clave_secreta_base64
 NEXT_PUBLIC_EXPIRENS_IN_SECONDS=120
 NEXT_PUBLIC_APP_NAME=Gasolina SV

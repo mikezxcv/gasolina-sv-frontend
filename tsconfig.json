@@ -22,6 +22,6 @@
       "@/*": ["./src/*"]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "src/app/(full-width-pages)/(map)/cerca-de-mi/page.old"],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "src/app/(full-width-pages)/(map)/cerca-de-mi/page.old", "src/app/(full-width-pages)/(map)/cerca-de-mi/page.old2"],
   "exclude": ["node_modules"]
 }

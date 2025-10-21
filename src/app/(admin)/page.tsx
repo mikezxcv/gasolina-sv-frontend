@@ -42,7 +42,7 @@ export const metadata: Metadata = {
     images: ["https://gasolinerassv.com/og-image.jpg"],
     creator: "@GasolinerasSV",
   },
-  manifest: "/manifest.json",
+  // manifest: "/manifest.json",
 };
 
 export default function Ecommerce() {

@@ -4,9 +4,10 @@ import Button from "../button/Button";
 import { Modal } from "./Modal";
 import Image from "next/image";
 import { Estacion } from "@/app/(admin)/(interfaces)/admin.interfaces";
-import { FaStore, FaCalendarAlt, FaMap, FaPaperPlane, FaLink } from "react-icons/fa";
+import { FaStore, FaCalendarAlt, FaMap, FaShareAlt, FaMapMarkedAlt } from "react-icons/fa";
 import Badge from "../badge/Badge";
 import { toast } from "react-toastify";
+import StaticMapGasStation from "./StaticMap";
 
 interface VerticallyCenteredModalProps {
   isOpen: boolean;
@@ -36,10 +37,10 @@ export default function VerticallyCenteredModal({
     longitude,
   } = station;
 
-  const staticMapUrl =
-    latitude && longitude
-      ? `https://maps.geoapify.com/v1/staticmap?style=osm-bright-smooth&width=600&height=400&center=lonlat:${longitude},${latitude}&zoom=15&marker=lonlat:${longitude},${latitude};type:material;color:%23dc2626;size:large;icon:gas-station&apiKey=b0e48491f5a445b6b29951c52c19e4ae`
-      : null;
+  // const staticMapUrl =
+  //   latitude && longitude
+  //     ? `https://maps.geoapify.com/v1/staticmap?style=osm-bright-smooth&width=600&height=400&center=lonlat:${longitude},${latitude}&zoom=15&marker=lonlat:${longitude},${latitude};type:material;color:%23dc2626;size:large;icon:gas-station&apiKey=b0e48491f5a445b6b29951c52c19e4ae`
+  //     : null;
 
   const googleMapsUrl =
     latitude && longitude
@@ -197,7 +198,7 @@ export default function VerticallyCenteredModal({
           <h5 className="text-base font-semibold text-gray-800 dark:text-white flex items-center gap-2">
             <FaMap /> Mapa (ubicación aproximada)
           </h5>
-          <div className="w-full h-[200px] bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden flex items-center justify-center">
+          {/* <div className="w-full h-[200px] bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden flex items-center justify-center">
             {staticMapUrl ? (
               <Image
                 src={staticMapUrl}
@@ -209,13 +210,20 @@ export default function VerticallyCenteredModal({
             ) : (
               <p className="text-gray-500 text-sm">Ubicación no disponible</p>
             )}
+          </div> */}
+          <div className="w-full h-[200px] bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden flex items-center justify-center">
+            {latitude && longitude ? (
+              <StaticMapGasStation lat={latitude} lng={longitude} />
+            ) : (
+              <p className="text-gray-500 text-sm">Ubicación no disponible</p>
+            )}
           </div>
           <Button
             size="sm"
             className="w-full mt-2 flex items-center justify-center gap-2 bg-blue-500 hover:bg-blue-600 text-white"
             onClick={() => window.open(googleMapsUrl, "_blank")}
           >
-            <FaPaperPlane /> Cómo llegar (Google Maps)
+            <FaMapMarkedAlt /> Cómo llegar (Google Maps)
           </Button>
         </div>
 
@@ -233,7 +241,7 @@ export default function VerticallyCenteredModal({
             onClick={handleCopyLink}
             className="flex items-center gap-2"
           >
-            <FaLink /> Compartir Enlace
+            <FaShareAlt /> Compartir
           </Button>
           <Button size="sm" variant="outline" onClick={closeModal}>
             Cerrar

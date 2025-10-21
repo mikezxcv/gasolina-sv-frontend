@@ -1,13 +1,14 @@
 "use client";
 import Image from "next/image";
 import { Estacion } from "@/app/(admin)/(interfaces)/admin.interfaces";
-import { FaStore, FaCalendarAlt, FaMap, FaPaperPlane } from "react-icons/fa";
+import { FaStore, FaCalendarAlt, FaMap, FaMapMarkedAlt } from "react-icons/fa";
 import Badge from "@/ui/badge/Badge";
 import Button from "@/ui/button/Button";
 import { useParams } from "next/navigation";
 import { useGasStationById } from "@/app/(admin)/(api)/admin.api";
 import Spinner from "@/ui/spinner/Spinner";
 import AppFooter from "@/layout/AppFooter";
+import StaticMapGasStation from "@/ui/modal/StaticMap";
 
 export default function StationDetailPage() {
     const { idEstacion } = useParams();
@@ -31,10 +32,10 @@ export default function StationDetailPage() {
 
     const { estacion, marca, direccion, departamento, municipio, tienda, ultimoPrecio, latitude, longitude } = data as Estacion;
 
-    const staticMapUrl =
-        latitude && longitude
-            ? `https://maps.geoapify.com/v1/staticmap?style=osm-bright-smooth&width=1200&height=500&center=lonlat:${longitude},${latitude}&zoom=15&marker=lonlat:${longitude},${latitude};type:material;color:%23dc2626;size:large;icon:gas-station&apiKey=b0e48491f5a445b6b29951c52c19e4ae`
-            : null;
+    // const staticMapUrl =
+    //     latitude && longitude
+    //         ? `https://maps.geoapify.com/v1/staticmap?style=osm-bright-smooth&width=1200&height=500&center=lonlat:${longitude},${latitude}&zoom=15&marker=lonlat:${longitude},${latitude};type:material;color:%23dc2626;size:large;icon:gas-station&apiKey=b0e48491f5a445b6b29951c52c19e4ae`
+    //         : null;
 
     const googleMapsUrl =
         latitude && longitude
@@ -175,14 +176,15 @@ export default function StationDetailPage() {
                                 <FaMap /> Ubicación
                             </h2>
                             <div className="w-full h-[300px] bg-gray-100 dark:bg-gray-700 rounded-lg overflow-hidden mb-4">
-                                {staticMapUrl ? (
-                                    <Image
-                                        src={staticMapUrl}
-                                        alt="Mapa Estación"
-                                        width={600}
-                                        height={300}
-                                        className="object-cover w-full h-full"
-                                    />
+                                {latitude && longitude ? (
+                                    // <Image
+                                    //     src={staticMapUrl}
+                                    //     alt="Mapa Estación"
+                                    //     width={600}
+                                    //     height={300}
+                                    //     className="object-cover w-full h-full"
+                                    // />
+                                    <StaticMapGasStation lat={latitude} lng={longitude} width={600} height={300} />
                                 ) : (
                                     <div className="w-full h-full flex items-center justify-center">
                                         <p className="text-gray-500 text-sm">
@@ -199,7 +201,7 @@ export default function StationDetailPage() {
                                 className="w-full flex items-center justify-center gap-2 bg-blue-500 hover:bg-blue-600 text-white mb-3"
                                 onClick={() => window.open(googleMapsUrl, "_blank")}
                             >
-                                <FaPaperPlane /> Cómo llegar (Google Maps)
+                                <FaMapMarkedAlt /> Cómo llegar (Google Maps)
                             </Button>
                         </div>
                     </div>
