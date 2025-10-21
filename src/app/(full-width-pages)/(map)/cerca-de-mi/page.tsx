@@ -27,8 +27,9 @@ function MapNearByMe() {
     const [tempRadiusKm, setTempRadiusKm] = useState(defaultRadiusKm);
     const [selectedStation, setSelectedStation] = useState<Estacion | null>(null);
     const [hoveredStationId, setHoveredStationId] = useState<string | null>(null);
-    const [locationPermissionGranted, setLocationPermissionGranted] = useState(false);
+    const [pendingCenter, setPendingCenter] = useState<{ lat: number; lng: number } | null>(null);
     const mapRef = useRef<google.maps.Map | null>(null);
+    const hasRequestedLocation = useRef(false);
 
     const { data: estaciones, isLoading, refetch } = useNearByGasStations(true, {
         lat: center.lat,
@@ -38,8 +39,20 @@ function MapNearByMe() {
 
     // Solicitar ubicación al cargar el componente
     useEffect(() => {
-        requestInitialLocation();
+        if (!hasRequestedLocation.current) {
+            hasRequestedLocation.current = true;
+            requestInitialLocation();
+        }
     }, []);
+
+    // Mover el mapa cuando esté listo y haya una ubicación pendiente
+    useEffect(() => {
+        if (mapRef.current && pendingCenter) {
+            mapRef.current.panTo(pendingCenter);
+            mapRef.current.setZoom(defaultZoom);
+            setPendingCenter(null);
+        }
+    }, [mapRef.current, pendingCenter, defaultZoom]);
 
     const requestInitialLocation = () => {
         if (!navigator.geolocation) {
@@ -52,21 +65,20 @@ function MapNearByMe() {
                 const { latitude, longitude } = pos.coords;
                 const newCenter = { lat: latitude, lng: longitude };
                 setCenter(newCenter);
-                console.log('grantedLocation:', locationPermissionGranted);
-                setLocationPermissionGranted(true);
-                
-                // Mover el mapa a la nueva ubicación
+
+                // Guardar la ubicación para mover el mapa cuando esté listo
                 if (mapRef.current) {
                     mapRef.current.panTo(newCenter);
                     mapRef.current.setZoom(defaultZoom);
+                } else {
+                    setPendingCenter(newCenter);
                 }
-                
+
                 toast.success('Ubicación obtenida correctamente');
             },
             (error) => {
                 console.error('Error al obtener ubicación:', error);
                 toast.info('Usando ubicación por defecto');
-                setLocationPermissionGranted(false);
             },
             {
                 enableHighAccuracy: true,
@@ -88,14 +100,13 @@ function MapNearByMe() {
                 const { latitude, longitude } = pos.coords;
                 const newCenter = { lat: latitude, lng: longitude };
                 setCenter(newCenter);
-                setLocationPermissionGranted(true);
-                
+
                 // Mover el mapa a la nueva ubicación con animación
                 if (mapRef.current) {
                     mapRef.current.panTo(newCenter);
                     mapRef.current.setZoom(defaultZoom);
                 }
-                
+
                 toast.success('Ubicación actualizada');
             },
             (error) => {
@@ -131,8 +142,8 @@ function MapNearByMe() {
             <APIProvider apiKey={apiKey}>
                 <Map
                     style={{ width: '100%', height: '100%' }}
-                    defaultCenter={center}
-                    defaultZoom={defaultZoom}
+                    center={center}
+                    zoom={defaultZoom}
                     gestureHandling="greedy"
                     disableDefaultUI={false}
                     mapId={'DEMO_MAP_ID'}
