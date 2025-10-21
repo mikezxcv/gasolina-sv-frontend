@@ -65,7 +65,7 @@ function MapNearByMe() {
                 const { latitude, longitude } = pos.coords;
                 const newCenter = { lat: latitude, lng: longitude };
                 setCenter(newCenter);
-
+                
                 // Guardar la ubicación para mover el mapa cuando esté listo
                 if (mapRef.current) {
                     mapRef.current.panTo(newCenter);
@@ -73,7 +73,7 @@ function MapNearByMe() {
                 } else {
                     setPendingCenter(newCenter);
                 }
-
+                
                 toast.success('Ubicación obtenida correctamente');
             },
             (error) => {
@@ -100,13 +100,13 @@ function MapNearByMe() {
                 const { latitude, longitude } = pos.coords;
                 const newCenter = { lat: latitude, lng: longitude };
                 setCenter(newCenter);
-
+                
                 // Mover el mapa a la nueva ubicación con animación
                 if (mapRef.current) {
                     mapRef.current.panTo(newCenter);
                     mapRef.current.setZoom(defaultZoom);
                 }
-
+                
                 toast.success('Ubicación actualizada');
             },
             (error) => {
@@ -142,8 +142,8 @@ function MapNearByMe() {
             <APIProvider apiKey={apiKey}>
                 <Map
                     style={{ width: '100%', height: '100%' }}
-                    center={center}
-                    zoom={defaultZoom}
+                    defaultCenter={defaultPosition}
+                    defaultZoom={defaultZoom}
                     gestureHandling="greedy"
                     disableDefaultUI={false}
                     mapId={'DEMO_MAP_ID'}
