@@ -8,7 +8,7 @@ import {
     useMap,
 } from '@vis.gl/react-google-maps';
 import { Estacion } from '@/app/(admin)/(interfaces)/admin.interfaces';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { FaCrosshairs, FaStore, FaCalendarAlt } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import Image from 'next/image';
@@ -20,15 +20,15 @@ function MapNearByMe() {
         lng: Number(process.env.NEXT_PUBLIC_DEFAULT_LONGITUDE ?? -89.21819),
     };
     const defaultZoom = Number(process.env.NEXT_PUBLIC_DEFAULT_ZOOM ?? 12);
-    const defaultRadiusKm =
-        Number(process.env.NEXT_PUBLIC_DEFAULT_RADIUS_METERS ?? 5000) / 1000;
+    const defaultRadiusKm = Number(process.env.NEXT_PUBLIC_DEFAULT_RADIUS_METERS ?? 5000) / 1000;
 
     const [center, setCenter] = useState(defaultPosition);
     const [radiusKm, setRadiusKm] = useState(defaultRadiusKm);
+    const [tempRadiusKm, setTempRadiusKm] = useState(defaultRadiusKm);
     const [selectedStation, setSelectedStation] = useState<Estacion | null>(null);
     const [hoveredStationId, setHoveredStationId] = useState<string | null>(null);
-    const [mapInstance] = useState<google.maps.Map | null>(null);
-    const [initialLoading, setInitialLoading] = useState(true);
+    const [locationPermissionGranted, setLocationPermissionGranted] = useState(false);
+    const mapRef = useRef<google.maps.Map | null>(null);
 
     const { data: estaciones, isLoading, refetch } = useNearByGasStations(true, {
         lat: center.lat,
@@ -36,76 +36,94 @@ function MapNearByMe() {
         radioKm: radiusKm,
     });
 
-    /* === Obtener ubicación actual al cargar === */
+    // Solicitar ubicación al cargar el componente
     useEffect(() => {
-        if (!navigator.geolocation) {
-            toast.warn('Tu navegador no soporta geolocalización, usando ubicación por defecto');
-            setCenter(defaultPosition);
-            setInitialLoading(false);
-            return;
-        }
-
-        navigator.geolocation.getCurrentPosition(
-            (pos) => {
-                const { latitude, longitude } = pos.coords;
-                setCenter({ lat: latitude, lng: longitude });
-                setInitialLoading(false);
-            },
-            () => {
-                toast.info('No se otorgaron permisos de ubicación, usando valores por defecto');
-                setCenter(defaultPosition);
-                setInitialLoading(false);
-            }
-        );
+        requestInitialLocation();
     }, []);
 
-    /* === Actualizar ubicación al hacer clic en "Usar mi ubicación" === */
-    const handleUseMyLocation = () => {
+    const requestInitialLocation = () => {
         if (!navigator.geolocation) {
-            toast.error('Tu navegador no soporta geolocalización');
+            toast.info('Tu navegador no soporta geolocalización. Usando ubicación por defecto.');
             return;
         }
+
         navigator.geolocation.getCurrentPosition(
             (pos) => {
                 const { latitude, longitude } = pos.coords;
                 const newCenter = { lat: latitude, lng: longitude };
                 setCenter(newCenter);
-
-                if (mapInstance) {
-                    mapInstance.panTo(newCenter);
-                    mapInstance.setZoom(defaultZoom);
+                setLocationPermissionGranted(true);
+                
+                // Mover el mapa a la nueva ubicación
+                if (mapRef.current) {
+                    mapRef.current.panTo(newCenter);
+                    mapRef.current.setZoom(defaultZoom);
                 }
+                
+                toast.success('Ubicación obtenida correctamente');
+            },
+            (error) => {
+                console.error('Error al obtener ubicación:', error);
+                toast.info('Usando ubicación por defecto');
+                setLocationPermissionGranted(false);
+            },
+            {
+                enableHighAccuracy: true,
+                timeout: 5000,
+                maximumAge: 0
+            }
+        );
+    };
 
+    // Obtener ubicación actual al hacer click en el botón
+    const handleUseMyLocation = () => {
+        if (!navigator.geolocation) {
+            toast.error('Tu navegador no soporta geolocalización');
+            return;
+        }
+
+        navigator.geolocation.getCurrentPosition(
+            (pos) => {
+                const { latitude, longitude } = pos.coords;
+                const newCenter = { lat: latitude, lng: longitude };
+                setCenter(newCenter);
+                setLocationPermissionGranted(true);
+                
+                // Mover el mapa a la nueva ubicación con animación
+                if (mapRef.current) {
+                    mapRef.current.panTo(newCenter);
+                    mapRef.current.setZoom(defaultZoom);
+                }
+                
                 toast.success('Ubicación actualizada');
             },
-            () => toast.error('No se pudo obtener tu ubicación')
+            (error) => {
+                console.error('Error al obtener ubicación:', error);
+                toast.error('No se pudo obtener tu ubicación');
+            },
+            {
+                enableHighAccuracy: true,
+                timeout: 5000,
+                maximumAge: 0
+            }
         );
     };
 
-    /* === Refetch solo cuando cambie la ubicación, no en cada movimiento del slider === */
+    // Manejar cambio del slider (solo actualiza el valor temporal)
+    const handleRadiusChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const newValue = Math.max(1, Number(e.target.value) || 1);
+        setTempRadiusKm(newValue);
+    };
+
+    // Manejar cuando se suelta el slider (actualiza el radio final y llama a la API)
+    const handleRadiusChangeEnd = () => {
+        setRadiusKm(tempRadiusKm);
+    };
+
+    // Refetch cuando cambie el radio final o la ubicación
     useEffect(() => {
         refetch();
-    }, [center]);
-
-    /* === Control del rango === */
-    const handleRangeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setRadiusKm(Math.max(1, Number(e.target.value) || 1));
-    };
-
-    const handleRangeCommit = () => {
-        refetch();
-    };
-
-    if (initialLoading) {
-        return (
-            <div className="w-full h-screen flex items-center justify-center bg-gray-100">
-                <div className="text-center">
-                    <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-600 mx-auto mb-3"></div>
-                    <p className="text-gray-600 font-medium">Obteniendo tu ubicación...</p>
-                </div>
-            </div>
-        );
-    }
+    }, [center, radiusKm, refetch]);
 
     return (
         <div className="relative w-full h-screen">
@@ -117,14 +135,14 @@ function MapNearByMe() {
                     gestureHandling="greedy"
                     disableDefaultUI={false}
                     mapId={'DEMO_MAP_ID'}
-                    // onTilesLoaded={
-                    //     (map) => {
-                    //         setMapInstance(map);
-                    //     }
-                    // }
-                    // onLoad={(map) => setMapInstance(map)}
+                    onCameraChanged={(ev) => {
+                        // Guardar referencia al mapa
+                        if (ev.map && !mapRef.current) {
+                            mapRef.current = ev.map;
+                        }
+                    }}
                 >
-                    <AnimatedRadius center={center} radiusKm={radiusKm} />
+                    <AnimatedRadius center={center} radiusKm={tempRadiusKm} />
 
                     {/* Punto azul animado (ubicación actual) */}
                     <AdvancedMarker position={center}>
@@ -134,7 +152,7 @@ function MapNearByMe() {
                         </div>
                     </AdvancedMarker>
 
-                    {/* Marcadores */}
+                    {/* Marcadores de estaciones */}
                     {estaciones?.map(
                         (estacion: Estacion) =>
                             estacion.latitude &&
@@ -151,9 +169,7 @@ function MapNearByMe() {
                                     <div
                                         className="flex items-center justify-center"
                                         onMouseEnter={() => setHoveredStationId(estacion.id)}
-                                        onMouseLeave={() =>
-                                            setHoveredStationId((id) => (id === estacion.id ? null : id))
-                                        }
+                                        onMouseLeave={() => setHoveredStationId((id) => (id === estacion.id ? null : id))}
                                     >
                                         {hoveredStationId === estacion.id ? (
                                             <div className="w-12 h-12 rounded-full bg-white flex items-center justify-center shadow-md border-2 border-gray-100 transition-transform transform hover:scale-110">
@@ -166,9 +182,7 @@ function MapNearByMe() {
                                             </div>
                                         ) : (
                                             <div className="w-12 h-12 rounded-full bg-white flex flex-col items-center justify-center shadow-md border border-gray-200 p-2 hover:scale-110 transition-transform">
-                                                <span className="text-xs text-gray-500">
-                                                    {estacion.marca.slice(0, 6)}
-                                                </span>
+                                                <span className="text-xs text-gray-500">{estacion.marca.slice(0, 6)}</span>
                                                 <span className="text-sm font-bold text-gray-900">
                                                     {getRegularPriceText(estacion)}
                                                 </span>
@@ -241,9 +255,7 @@ function MapNearByMe() {
                                                                     )}
                                                                 </div>
                                                             ) : (
-                                                                <p className="italic text-gray-400 text-[10px]">
-                                                                    No hay datos
-                                                                </p>
+                                                                <p className="italic text-gray-400 text-[10px]">No hay datos</p>
                                                             )}
                                                         </div>
                                                     ))}
@@ -263,11 +275,7 @@ function MapNearByMe() {
 
                                                 <p className="flex items-center gap-2 text-xs text-gray-500 mt-2">
                                                     <FaCalendarAlt /> Última actualización:{' '}
-                                                    <span className="font-medium">
-                                                        {new Date(
-                                                            estacion.ultimoPrecio.fechaReporte
-                                                        ).toLocaleString('es-SV')}
-                                                    </span>
+                                                    <span className="font-medium">{new Date(estacion.ultimoPrecio.fechaReporte).toLocaleString('es-SV')}</span>
                                                 </p>
 
                                                 <div className="mt-3 flex gap-2">
@@ -281,10 +289,7 @@ function MapNearByMe() {
                                                     </a>
 
                                                     <a
-                                                        href={`/estacion/${estacion.id}/${estacion.estacion
-                                                            .toLowerCase()
-                                                            .replace(/\s+/g, '-')
-                                                            .replace(/[^a-z0-9-]/g, '')}`}
+                                                        href={`/estacion/${estacion.id}/${estacion.estacion.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')}`}
                                                         target="_blank"
                                                         rel="noopener noreferrer"
                                                         className="block mt-2 text-blue-500 underline text-xs text-center"
@@ -305,7 +310,7 @@ function MapNearByMe() {
             <div className="absolute top-4 left-4 z-10 flex flex-col gap-2">
                 <button
                     onClick={handleUseMyLocation}
-                    className="flex items-center gap-2 bg-white px-3 py-2 rounded-lg shadow-md hover:bg-gray-50"
+                    className="flex items-center gap-2 bg-white px-3 py-2 rounded-lg shadow-md hover:bg-gray-50 transition-colors"
                 >
                     <FaCrosshairs className="text-gray-700" />
                     <span className="text-sm font-medium text-gray-800">Usar mi ubicación</span>
@@ -313,27 +318,27 @@ function MapNearByMe() {
 
                 <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
                     <div className="mb-4">
-                        <label className="block text-gray-700 font-bold mb-2">{radiusKm} km</label>
+                        <label className="block text-gray-700 font-bold mb-2"> {tempRadiusKm} km </label>
                         <input
                             type="range"
                             id="radius-range"
                             className="w-full accent-indigo-600"
                             min={1}
                             max={20}
-                            value={radiusKm}
-                            onChange={handleRangeChange}
-                            onMouseUp={handleRangeCommit}
-                            onTouchEnd={handleRangeCommit}
+                            value={tempRadiusKm}
+                            onChange={handleRadiusChange}
+                            onMouseUp={handleRadiusChangeEnd}
+                            onTouchEnd={handleRadiusChangeEnd}
                         />
                     </div>
                     <div className="flex justify-between text-gray-500">
-                        <span>1</span>
-                        <span>20</span>
+                        <span>1 km</span>
+                        <span>20 km</span>
                     </div>
                 </div>
             </div>
 
-            {/* Indicador de carga de estaciones */}
+            {/* Indicador de carga */}
             {isLoading && (
                 <div className="absolute inset-0 flex items-center justify-center bg-white/60 z-20">
                     <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-blue-600"></div>
@@ -343,7 +348,7 @@ function MapNearByMe() {
     );
 }
 
-/* === Componente círculo === */
+/* === Componente para dibujar y animar el círculo del radio === */
 function AnimatedRadius({
     center,
     radiusKm,
@@ -356,6 +361,7 @@ function AnimatedRadius({
 
     useEffect(() => {
         if (!map) return;
+
         if (circle) circle.setMap(null);
 
         const newCircle = new google.maps.Circle({
@@ -391,7 +397,9 @@ function AnimatedRadius({
         };
         animate();
 
-        return () => newCircle.setMap(null);
+        return () => {
+            newCircle.setMap(null);
+        };
     }, [map, center, radiusKm]);
 
     return null;

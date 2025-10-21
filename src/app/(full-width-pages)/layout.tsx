@@ -2,6 +2,7 @@
 import AppHeaderFullPage from "@/layout/AppHeaderFullPage";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import React, { useState } from "react";
+import { ToastContainer } from "react-toastify";
 
 export default function FullWidthPageLayout({
   children,
@@ -19,8 +20,9 @@ export default function FullWidthPageLayout({
 
   return <div>
     <QueryClientProvider client={queryClient}>
-      <AppHeaderFullPage  />
+      <AppHeaderFullPage />
       {children}
+      <ToastContainer theme={"colored"} position="bottom-right" />
     </QueryClientProvider>
   </div>;
 }
