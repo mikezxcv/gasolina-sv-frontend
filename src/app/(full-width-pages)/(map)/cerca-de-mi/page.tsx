@@ -52,6 +52,7 @@ function MapNearByMe() {
                 const { latitude, longitude } = pos.coords;
                 const newCenter = { lat: latitude, lng: longitude };
                 setCenter(newCenter);
+                console.log('grantedLocation:', locationPermissionGranted);
                 setLocationPermissionGranted(true);
                 
                 // Mover el mapa a la nueva ubicación
