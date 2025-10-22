@@ -28,7 +28,7 @@ export const metadata: Metadata = {
         type: "website",
         images: [
             {
-                url: "https://gasolinerassv.com/og-image.jpg",
+                url: "https://gasolinasv.com",
                 width: 1200,
                 height: 630,
                 alt: "Gasolineras SV - Precios de Combustible en El Salvador",
@@ -37,11 +37,11 @@ export const metadata: Metadata = {
     },
     twitter: {
         card: "summary_large_image",
-        title: "Gasolineras SV | Precios de Combustible en El Salvador",
+        title: "Gasolina SV | Precios de Combustible en El Salvador",
         description:
             "Consulta precios actualizados de gasolina y diésel en todo El Salvador.",
-        images: ["https://gasolinerassv.com/og-image.jpg"],
-        creator: "@GasolinerasSV",
+        images: ["https://gasolinasv.com"],
+        creator: "@GasolinaSV",
     },
     manifest: "/manifest.json",
 };
