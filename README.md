@@ -27,7 +27,7 @@ Clona el repositorio y instala dependencias:
 ```bash
 git clone https://github.com/jmanuelgnt/gasolina-sv-frontend.git
 cd gasolina-sv-frontend
-npm install
+yarn install
 # o
 # yarn
 ```
@@ -35,7 +35,7 @@ npm install
 Inicia en modo desarrollo:
 
 ```bash
-npm run dev
+yarn dev
 # o
 # yarn dev
 ```
@@ -80,10 +80,10 @@ NEXT_PUBLIC_DEFAULT_RADIUS_METERS = 5000
 
 ## Scripts útiles
 
-- npm run dev: ejecución en desarrollo (localhost:3000)
-- npm run build: construcción de producción
-- npm run start: iniciar servidor de producción
-- npm run lint: corrección de lint
+- yarn dev: ejecución en desarrollo (localhost:3000)
+- yarn build: construcción de producción
+- yarn start: iniciar servidor de producción
+- yarn lint: corrección de lint
 
 ## Estructura principal del proyecto
 
