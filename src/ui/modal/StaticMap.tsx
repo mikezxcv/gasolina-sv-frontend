@@ -13,7 +13,7 @@ interface StaticMapGasStationProps {
 export default function StaticMapGasStation({ lat, lng, width, height }: StaticMapGasStationProps) {
     const staticMapsUrl = createStaticMapsUrl({
         apiKey: API_KEY,
-        scale: 2,
+        scale: 3,
         width: width ?? 600,
         height: height ?? 600,
         center: { lat, lng },

@@ -1,7 +1,7 @@
 "use client";
 import Image from "next/image";
 import { Estacion } from "@/app/(admin)/(interfaces)/admin.interfaces";
-import { FaStore, FaCalendarAlt, FaMap, FaMapMarkedAlt } from "react-icons/fa";
+import { FaStore, FaCalendarAlt, FaMap, FaMapMarkedAlt, FaShareAlt } from "react-icons/fa";
 import Badge from "@/ui/badge/Badge";
 import Button from "@/ui/button/Button";
 import { useParams } from "next/navigation";
@@ -9,6 +9,7 @@ import { useGasStationById } from "@/app/(admin)/(api)/admin.api";
 import Spinner from "@/ui/spinner/Spinner";
 import AppFooter from "@/layout/AppFooter";
 import StaticMapGasStation from "@/ui/modal/StaticMap";
+import { toast } from "react-toastify";
 
 export default function Index() {
     const { idEstacion } = useParams();
@@ -67,6 +68,37 @@ export default function Index() {
     ];
 
     const fecha = new Date(ultimoPrecio.fechaReporte).toLocaleString("es-SV");
+
+    const handleCopyLink = async () => {
+        const slug = estacion.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+        const stationUrl = `${window.location.origin}/estacion/${idEstacion}/${slug}`;
+
+        // Si el navegador soporta la API Web Share (móvil o tablet)
+        if (navigator.share) {
+            try {
+                await navigator.share({
+                    title: estacion,
+                    text: `Consulta los precios de combustible en ${estacion}`,
+                    url: stationUrl,
+                });
+                // closeModal();
+                toast.success("¡Compartido exitosamente!");
+            } catch (error) {
+                console.error("Error al compartir:", error);
+                toast.error("No se pudo compartir el enlace.");
+            }
+        } else {
+            // En PC o navegadores sin soporte
+            navigator.clipboard.writeText(stationUrl)
+                .then(() => {
+                    // closeModal();
+                    toast.success("¡Enlace copiado al portapapeles!");
+                })
+                .catch((err) => {
+                    toast.error("Error al copiar el enlace:", err);
+                });
+        }
+    };
 
     return (
         <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
@@ -184,7 +216,7 @@ export default function Index() {
                                     //     height={300}
                                     //     className="object-cover w-full h-full"
                                     // />
-                                    <StaticMapGasStation lat={latitude} lng={longitude} width={600} height={300} />
+                                    <StaticMapGasStation lat={latitude} lng={longitude} width={600} height={600} />
                                 ) : (
                                     <div className="w-full h-full flex items-center justify-center">
                                         <p className="text-gray-500 text-sm">
@@ -202,6 +234,14 @@ export default function Index() {
                                 onClick={() => window.open(googleMapsUrl, "_blank")}
                             >
                                 <FaMapMarkedAlt /> Cómo llegar (Google Maps)
+                            </Button>
+                            <Button
+                                size="sm"
+                                variant="primary"
+                                onClick={handleCopyLink}
+                                className="w-full flex items-center justify-center gap-2 bg-blue-500 hover:bg-blue-600 text-white mb-3"
+                            >
+                                <FaShareAlt /> Compartir
                             </Button>
                         </div>
                     </div>

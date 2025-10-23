@@ -89,6 +89,18 @@ const DropdownFilters: React.FC = () => {
         closeDropdown();
     };
 
+    const handleCleanFilters = () => {
+        setTempDepartamento(null);
+        setTempMunicipio(null);
+        setTempMarca(null);
+        closeDropdown();
+
+        // También limpiar los filtros en el contexto
+        setDepartamento(null);
+        setMunicipio(null);
+        setMarca(null);
+    };
+
     function toggleDropdown() {
         setIsOpen(!isOpen);
     }
@@ -182,6 +194,10 @@ const DropdownFilters: React.FC = () => {
 
                     <Button variant="primary" className="w-full" onClick={handleApplyFilters}>
                         Aplicar Filtros
+                    </Button>
+                    {/* // agregar boton para limpiar filtros completamente y lanzar una nueva peticion */}
+                    <Button variant="secondary" className="w-full" onClick={handleCleanFilters}>
+                        Limpiar Filtros
                     </Button>
                 </div>
             </Dropdown>
